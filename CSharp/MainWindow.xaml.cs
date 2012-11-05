@@ -22,9 +22,14 @@ namespace ColoursInSpace
     public partial class MainWindow : Window
     {
         private OSC osc;
+		private ColoursProcessor coloursProcessor;
+		private Kinect kinectLogic;
+
         public MainWindow()
         {
-            osc = new OSC(IPAddress.Loopback.ToString(), 57120);
+            osc = new OSC(IPAddress.Loopback.ToString());
+			coloursProcessor = new ColoursProcessor();
+			kinectLogic = new Kinect(coloursProcessor.ProcessColourBitmap);
             InitializeComponent();
         }
 

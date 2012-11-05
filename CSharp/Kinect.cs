@@ -11,6 +11,8 @@ using Microsoft.Kinect;
 
 namespace ColoursInSpace
 {
+	public delegate void ProcessColourBitmapDelegate(WriteableBitmap colourBitmap);
+
     class Kinect
     {
         /// <summary>
@@ -18,10 +20,12 @@ namespace ColoursInSpace
         /// </summary>
         private KinectSensor sensor;
 
-        /// <summary>
-        /// Bitmap that will hold color information
-        /// </summary>
-        private WriteableBitmap colorBitmap;
+		/// <summary>
+		/// Bitmap that will hold a single frame
+		/// </summary>
+		private WriteableBitmap colourBitmap;
+		
+		private ProcessColourBitmapDelegate ProcessColourBitmap;
 
         /// <summary>
         /// Intermediate storage for the color data received from the camera
@@ -31,10 +35,11 @@ namespace ColoursInSpace
         /// <summary>
         /// Execute startup tasks
         /// </summary>
-        /// <param name="sender">object sending the event</param>
-        /// <param name="e">event arguments</param>
-        public Kinect()
+		public Kinect(ProcessColourBitmapDelegate ProcessColourBitmap)
         {
+			//Initialize the delegate
+			this.ProcessColourBitmap = ProcessColourBitmap;
+
             // Look through all sensors and start the first connected one.
             // This requires that a Kinect is connected at the time of app startup.
             // To make your app robust against plug/unplug, 
@@ -44,7 +49,7 @@ namespace ColoursInSpace
                 if (potentialSensor.Status == KinectStatus.Connected)
                 {
                     this.sensor = potentialSensor;
-                    break;
+                    break;					
                 }
             }
 
@@ -56,11 +61,10 @@ namespace ColoursInSpace
                 // Allocate space to put the pixels we'll receive
                 this.colorPixels = new byte[this.sensor.ColorStream.FramePixelDataLength];
 
-                // This is the bitmap we'll display on-screen
-                this.colorBitmap = new WriteableBitmap(this.sensor.ColorStream.FrameWidth, this.sensor.ColorStream.FrameHeight, 96.0, 96.0, PixelFormats.Bgr32, null);
-
-                // Set the image we display to point to the bitmap where we'll put the image data
-                //this.Image.Source = this.colorBitmap;
+				// Initialize the colourBitmap
+				this.colourBitmap = new WriteableBitmap(this.sensor.ColorStream.FrameWidth,
+														this.sensor.ColorStream.FrameHeight,
+														96.0, 96.0, PixelFormats.Bgr32, null);
 
                 // Add an event handler to be called whenever there is new color frame data
                 this.sensor.ColorFrameReady += this.SensorColorFrameReady;
@@ -82,7 +86,7 @@ namespace ColoursInSpace
         /// </summary>
         /// <param name="sender">object sending the event</param>
         /// <param name="e">event arguments</param>
-        private ~Kinect()
+        ~Kinect()
         {
             if (null != this.sensor)
             {
@@ -105,13 +109,13 @@ namespace ColoursInSpace
                     colorFrame.CopyPixelDataTo(this.colorPixels);
 
                     // Write the pixel data into the bitmap
-                    this.colorBitmap.WritePixels(
-                                                new Int32Rect(0, 0, this.colorBitmap.PixelWidth, this.colorBitmap.PixelHeight),
-                                                this.colorPixels,
-                                                this.colorBitmap.PixelWidth * sizeof(int),
-                                                0);
+                    this.colourBitmap.WritePixels(new Int32Rect(0, 0, this.colourBitmap.PixelWidth, this.colourBitmap.PixelHeight),
+                                                 this.colorPixels,
+                                                 this.colourBitmap.PixelWidth * sizeof(int),
+                                                 0);
                 }
             }
+			ProcessColourBitmap(colourBitmap.Clone());
         }
     }
 }

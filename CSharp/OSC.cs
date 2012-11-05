@@ -12,7 +12,7 @@ namespace ColoursInSpace
     {
         private UdpWriter writer;
 
-        public OSC(string ipAdress, ushort port)
+		public OSC(string ipAdress = "127.0.0.1", ushort port = 57120)
         {
             writer = new UdpWriter(ipAdress, port);
         }
