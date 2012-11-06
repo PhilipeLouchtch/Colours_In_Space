@@ -12,13 +12,17 @@ namespace ColoursInSpace
     {
         public Color[,] pixels;
 
-        public Colours(ref byte[] pixelData)
+        public Colours()
         {
-            pixels = new Color[640, 480];
+            pixels = new Color[640, 480];            
+        }
+
+        public void ProcessPixelBgraData(ref byte[] pixelData)
+        {
 
             int x;
             int y;
-            int length =  pixelData.Length;
+            int length = pixelData.Length;
 
             //Convert the pixelData to colours
             for (int i = 0; i < length; i += 4)

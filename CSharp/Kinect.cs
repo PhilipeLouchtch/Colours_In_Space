@@ -11,8 +11,7 @@ using Microsoft.Kinect;
 
 namespace ColoursInSpace
 {
-	public delegate void ProcessColourBitmapDelegate(WriteableBitmap colourBitmap);
-    public delegate void ProcessPixelData(byte[] colorPixels);
+	public delegate void ProcessPixelData(byte[] colourPixels);
 
     class Kinect
     {
@@ -26,13 +25,15 @@ namespace ColoursInSpace
 		/// </summary>
 		private WriteableBitmap colourBitmap;
 		
-		private ProcessColourBitmapDelegate ProcessColourBitmap;
+        /// <summary>
+        /// Delegate to the ColoursProcessor class, processes the new frame of pixels
+        /// </summary>
         private ProcessPixelData ProcessPixelData;
 
         /// <summary>
-        /// Intermediate storage for the color data received from the camera
+        /// Intermediate storage for the colour data received from the camera
         /// </summary>
-        private byte[] colorPixels;
+        private byte[] colourPixels;
 
         /// <summary>
         /// Execute startup tasks
@@ -62,7 +63,7 @@ namespace ColoursInSpace
                 this.sensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
 
                 // Allocate space to put the pixels we'll receive
-                this.colorPixels = new byte[this.sensor.ColorStream.FramePixelDataLength];
+                this.colourPixels = new byte[this.sensor.ColorStream.FramePixelDataLength];
 
 				// Initialize the colourBitmap
 				this.colourBitmap = new WriteableBitmap(this.sensor.ColorStream.FrameWidth,
@@ -104,21 +105,21 @@ namespace ColoursInSpace
         /// <param name="e">event arguments</param>
         private void SensorColorFrameReady(object sender, ColorImageFrameReadyEventArgs e)
         {
-            using (ColorImageFrame colorFrame = e.OpenColorImageFrame())
+            using (ColorImageFrame colourFrame = e.OpenColorImageFrame())
             {
-                if (colorFrame != null)
+                if (colourFrame != null)
                 {
                     // Copy the pixel data from the image to a temporary array
-                    colorFrame.CopyPixelDataTo(this.colorPixels);
+                    colourFrame.CopyPixelDataTo(this.colourPixels);
 
                     // Write the pixel data into the bitmap
                     this.colourBitmap.WritePixels(new Int32Rect(0, 0, this.colourBitmap.PixelWidth, this.colourBitmap.PixelHeight),
-                                                 this.colorPixels,
+                                                 this.colourPixels,
                                                  this.colourBitmap.PixelWidth * sizeof(int),
                                                  0);
                 }
             }
-			//ProcessColourBitmap(colourBitmap.Clone());
+
             byte[] pixelDataClone = new byte[(640 * 480 * 4)];
             ProcessPixelData(pixelDataClone);            
         }

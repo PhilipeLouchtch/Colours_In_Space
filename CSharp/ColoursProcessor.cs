@@ -19,14 +19,12 @@ namespace ColoursInSpace
 		/// <summary>
 		/// Initializes the ColoursProcessor class
 		/// </summary>
-		/// <param name="FrameWidth">FrameWidth from the KinectSensor.ColorStream.FrameWidth property</param>
-		/// <param name="FrameHeight">FrameHeight from the KinectSensor.ColorStream.FrameHeight property</param>
+        /// <param name="amntTargetBoxes">Amount of colours to be stored (the amount of targets set)</param>
 		public ColoursProcessor(ushort amntTargetBoxes = 3)
 		{
 			this.amntTargetBoxes = amntTargetBoxes;
             pixelBgraData = new byte[(640 * 480 * 4)];  //Hardcoded size? Not very nice, yes
 		}
-			
 
 		/// <summary>
 		/// Handles a new frame from the Kinect sensor
@@ -43,10 +41,11 @@ namespace ColoursInSpace
         /// Handles a new frame from the Kinect sensor
         /// </summary>
         /// <param name="colourBitmap">A cloned colourBitmap</param>
-        public void ProcessPixelData(byte[] colorPixels)
+        public void ProcessPixelData(byte[] colourPixels)
         {
 
-            Colours colours = new Colours(ref colorPixels);
+            Colours colours = new Colours();
+            colours.ProcessPixelBgraData(ref colourPixels);
         }
 
 
