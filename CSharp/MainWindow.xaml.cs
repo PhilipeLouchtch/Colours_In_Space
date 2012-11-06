@@ -29,7 +29,7 @@ namespace ColoursInSpace
         {
             osc = new OSC(IPAddress.Loopback.ToString());
 			coloursProcessor = new ColoursProcessor();
-			kinectLogic = new Kinect(coloursProcessor.ProcessColourBitmap);
+			kinectLogic = new Kinect(coloursProcessor.ProcessPixelData);
             InitializeComponent();
         }
 
