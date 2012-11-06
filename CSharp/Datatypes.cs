@@ -16,25 +16,26 @@ namespace ColoursInSpace
         {
             pixels = new Color[640, 480];            
         }
-
-        public void ProcessPixelBgraData(ref byte[] pixelData)
+				
+        public void ProcessPixelBgraData(byte[] pixelData)
         {
-
-            int x;
-            int y;
-            int length = pixelData.Length;
-
-            //Convert the pixelData to colours
-            for (int i = 0; i < length; i += 4)
-            {
-                x = (i / 4) % 640;
-                y = (i / 4) / 640;
-                pixels[x, y] = Color.FromArgb(pixelData[i + 3], pixelData[i + 2], pixelData[i + 1], pixelData[i]);
-            }
+			ParallelOptions parallelOptions = new ParallelOptions();
+			parallelOptions.MaxDegreeOfParallelism = 2;
+           
+			int iterations = 4;
+			int length = pixelData.Length / iterations;
+			//Convert the pixelData to colours using # of iterations threads
+			Parallel.For(0, iterations, parallelOptions, (iterationNo) =>
+			{
+				for (int i = (iterationNo * length); i < (length * iterationNo); i += 4)
+				{
+					int x = (i >> 2) % 640;
+					int y = (i >> 2) / 640;
+					pixels[x, y] = Color.FromArgb(pixelData[i + 3], pixelData[i + 2], pixelData[i + 1], pixelData[i]);
+				}
+			});
         }
     }
-
-
 
     //TODO: Clamp colours?
 	/// <summary>

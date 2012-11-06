@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Microsoft.Kinect;
+using System.Threading;
 
 namespace ColoursInSpace
 {
@@ -33,8 +34,6 @@ namespace ColoursInSpace
 		public void ProcessColourBitmap(WriteableBitmap colourBitmap)
 		{
             colourBitmap.CopyPixels(this.pixelBgraData, colourBitmap.PixelWidth * sizeof(int), 0);
-
-			//TODO: Pixels byte data to colours (without killing performance)
 		}
 
         /// <summary>
@@ -45,7 +44,7 @@ namespace ColoursInSpace
         {
 			Colours colours = new Colours();
 			//Convert the BGRA bytes into colours
-            colours.ProcessPixelBgraData(ref colourPixels);
+            colours.ProcessPixelBgraData(colourPixels);
         }
 
 

@@ -23,7 +23,7 @@ namespace ColoursInSpace
     {
         private OSC osc;
 		private ColoursProcessor coloursProcessor;
-		private Kinect kinectLogic;
+		private Kinect kinectLogic;		
 
         public MainWindow()
         {
