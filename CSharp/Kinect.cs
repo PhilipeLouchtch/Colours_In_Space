@@ -101,16 +101,14 @@ namespace ColoursInSpace
                 {
                     // Copy the pixel data from the image to a temporary array
                     colourFrame.CopyPixelDataTo(this.colourPixels);
+
+					//TODO: Switch to just using colourPixels?
+					byte[] pixelDataClone; // = new byte[(640 * 480 * 4)];
+					pixelDataClone = (byte[])this.colourPixels.Clone();
+
+					ProcessPixelData(pixelDataClone);
                 }
-            }
-
-
-			//TODO: Switch to just using colourPixels?
-            byte[] pixelDataClone = new byte[(640 * 480 * 4)];
-			this.colourPixels.CopyTo(pixelDataClone, 0);
-			//
-
-            ProcessPixelData(pixelDataClone);            
+            }			
         }
     }
 }
