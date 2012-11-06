@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -23,19 +24,32 @@ namespace ColoursInSpace
     {
         private OSC osc;
 		private ColoursProcessor coloursProcessor;
-		private Kinect kinectLogic;		
+		private Kinect kinectLogic;
+
+		//Thread where the KinectLogic start from
+		private System.Threading.Thread kinectThread;
 
         public MainWindow()
         {
             osc = new OSC(IPAddress.Loopback.ToString());
-			coloursProcessor = new ColoursProcessor();
+			coloursProcessor = new ColoursProcessor(osc.SendMsg);
 			kinectLogic = new Kinect(coloursProcessor.ProcessPixelData);
+			kinectThread = new Thread(new ThreadStart(kinectLogic.ConnectToSensor));
             InitializeComponent();
         }
 
-        private void SendMsg_Click(object sender, RoutedEventArgs e)
+        private void zeButton_Click(object sender, RoutedEventArgs e)
         {
-            osc.SendMsg();
+			//Very hacky...
+			if ( ((Button)sender).Content != "Kill it")
+			{
+				//We have lift off
+				kinectThread.Start();
+				((Button)sender).Content = "Kill it";
+			}
+			else
+				base.Close();
+
         }
     }
 }

@@ -11,8 +11,6 @@ using Microsoft.Kinect;
 
 namespace ColoursInSpace
 {
-	public delegate void ProcessPixelData(byte[] colourPixels);
-
     class Kinect
     {
         /// <summary>
@@ -37,9 +35,12 @@ namespace ColoursInSpace
         {
 			//Initialize the delegate
 			//this.ProcessColourBitmap = ProcessColourBitmap;
-            this.ProcessPixelData = ProcessPixelData;
+            this.ProcessPixelData = ProcessPixelData;           
+        }
 
-            // Look through all sensors and start the first connected one.
+		public void ConnectToSensor()
+		{
+			 // Look through all sensors and start the first connected one.
             // This requires that a Kinect is connected at the time of app startup.
             // To make your app robust against plug/unplug, 
             // it is recommended to use KinectSensorChooser provided in Microsoft.Kinect.Toolkit
@@ -73,7 +74,7 @@ namespace ColoursInSpace
                     this.sensor = null;
                 }
             }
-        }
+		}
 
         /// <summary>
         /// Execute shutdown tasks

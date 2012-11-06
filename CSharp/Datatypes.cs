@@ -19,10 +19,12 @@ namespace ColoursInSpace
 				
         public void ProcessPixelBgraData(byte[] pixelData)
         {
-			ParallelOptions parallelOptions = new ParallelOptions();
-			parallelOptions.MaxDegreeOfParallelism = 2;
+			ParallelOptions parallelOptions = new ParallelOptions();		
            
+			//TODO: Tweak this when done
+			//TODO: Test for correctness
 			int iterations = 4;
+			parallelOptions.MaxDegreeOfParallelism = iterations;
 			int length = pixelData.Length / iterations;
 			//Convert the pixelData to colours using # of iterations threads
 			Parallel.For(0, iterations, parallelOptions, (iterationNo) =>

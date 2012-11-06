@@ -11,18 +11,23 @@ using System.Threading;
 
 namespace ColoursInSpace
 {
+	public delegate void ProcessPixelData(byte[] colourPixels);
+
 	class ColoursProcessor
 	{
 		private byte[] pixelBgraData;
 
 		public ushort amntTargetBoxes { set; get; }
 
+		private SendOscMsg sendOscMsg;
+
 		/// <summary>
 		/// Initializes the ColoursProcessor class
 		/// </summary>
         /// <param name="amntTargetBoxes">Amount of colours to be stored (the amount of targets set)</param>
-		public ColoursProcessor(ushort amntTargetBoxes = 3)
+		public ColoursProcessor(SendOscMsg sendOscMsg, ushort amntTargetBoxes = 3)
 		{
+			this.sendOscMsg = sendOscMsg;
 			this.amntTargetBoxes = amntTargetBoxes;
             pixelBgraData = new byte[(640 * 480 * 4)];  //Hardcoded size? Not very nice, yes
 		}
