@@ -12,6 +12,7 @@ using Microsoft.Kinect;
 namespace ColoursInSpace
 {
 	public delegate void ProcessColourBitmapDelegate(WriteableBitmap colourBitmap);
+    public delegate void ProcessPixelData(byte[] colorPixels);
 
     class Kinect
     {
@@ -26,6 +27,7 @@ namespace ColoursInSpace
 		private WriteableBitmap colourBitmap;
 		
 		private ProcessColourBitmapDelegate ProcessColourBitmap;
+        private ProcessPixelData ProcessPixelData;
 
         /// <summary>
         /// Intermediate storage for the color data received from the camera
@@ -35,10 +37,11 @@ namespace ColoursInSpace
         /// <summary>
         /// Execute startup tasks
         /// </summary>
-		public Kinect(ProcessColourBitmapDelegate ProcessColourBitmap)
+        public Kinect(ProcessPixelData ProcessPixelData)
         {
 			//Initialize the delegate
-			this.ProcessColourBitmap = ProcessColourBitmap;
+			//this.ProcessColourBitmap = ProcessColourBitmap;
+            this.ProcessPixelData = ProcessPixelData;
 
             // Look through all sensors and start the first connected one.
             // This requires that a Kinect is connected at the time of app startup.
@@ -115,7 +118,9 @@ namespace ColoursInSpace
                                                  0);
                 }
             }
-			ProcessColourBitmap(colourBitmap.Clone());
+			//ProcessColourBitmap(colourBitmap.Clone());
+            byte[] pixelDataClone = new byte[(640 * 480 * 4)];
+            ProcessPixelData(pixelDataClone);            
         }
     }
 }

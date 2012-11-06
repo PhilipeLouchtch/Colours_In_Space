@@ -12,12 +12,7 @@ namespace ColoursInSpace
 {
 	class ColoursProcessor
 	{
-		/// <summary>
-		/// Bitmap that will hold a single frame
-		/// </summary>
-		private WriteableBitmap colourBitmap;
-
-		private byte[] pixels;
+		private byte[] pixelBgraData;
 
 		public ushort amntTargetBoxes { set; get; }
 
@@ -29,7 +24,7 @@ namespace ColoursInSpace
 		public ColoursProcessor(ushort amntTargetBoxes = 3)
 		{
 			this.amntTargetBoxes = amntTargetBoxes;
-			pixels = new byte[(640 * 480 * 4)];  //Hardcoded size? Not very nice, yes
+            pixelBgraData = new byte[(640 * 480 * 4)];  //Hardcoded size? Not very nice, yes
 		}
 			
 
@@ -39,15 +34,25 @@ namespace ColoursInSpace
 		/// <param name="colourBitmap">A cloned colourBitmap</param>
 		public void ProcessColourBitmap(WriteableBitmap colourBitmap)
 		{
-			colourBitmap.CopyPixels(this.pixels, colourBitmap.PixelWidth * sizeof(int), 0);
+            colourBitmap.CopyPixels(this.pixelBgraData, colourBitmap.PixelWidth * sizeof(int), 0);
 
 			//TODO: Pixels byte data to colours (without killing performance)
 		}
 
+        /// <summary>
+        /// Handles a new frame from the Kinect sensor
+        /// </summary>
+        /// <param name="colourBitmap">A cloned colourBitmap</param>
+        public void ProcessPixelData(byte[] colorPixels)
+        {
 
-		public Colours GetTargetBoxColours()
+            Colours colours = new Colours(ref colorPixels);
+        }
+
+
+		public TargetColours GetTargetBoxColours()
 		{
-			Colours colours = new Colours(amntTargetBoxes);
+			TargetColours targetColours = new TargetColours(amntTargetBoxes);
 
 			switch (amntTargetBoxes)
 			{
@@ -59,7 +64,7 @@ namespace ColoursInSpace
 					break;
 			}
 
-			return colours;
+			return targetColours;
 		}
 		
 	}
