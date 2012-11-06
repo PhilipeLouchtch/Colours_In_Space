@@ -43,8 +43,8 @@ namespace ColoursInSpace
         /// <param name="colourBitmap">A cloned colourBitmap</param>
         public void ProcessPixelData(byte[] colourPixels)
         {
-
-            Colours colours = new Colours();
+			Colours colours = new Colours();
+			//Convert the BGRA bytes into colours
             colours.ProcessPixelBgraData(ref colourPixels);
         }
 

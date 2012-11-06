@@ -19,11 +19,6 @@ namespace ColoursInSpace
         /// Active Kinect sensor
         /// </summary>
         private KinectSensor sensor;
-
-		/// <summary>
-		/// Bitmap that will hold a single frame
-		/// </summary>
-		private WriteableBitmap colourBitmap;
 		
         /// <summary>
         /// Delegate to the ColoursProcessor class, processes the new frame of pixels
@@ -64,11 +59,6 @@ namespace ColoursInSpace
 
                 // Allocate space to put the pixels we'll receive
                 this.colourPixels = new byte[this.sensor.ColorStream.FramePixelDataLength];
-
-				// Initialize the colourBitmap
-				this.colourBitmap = new WriteableBitmap(this.sensor.ColorStream.FrameWidth,
-														this.sensor.ColorStream.FrameHeight,
-														96.0, 96.0, PixelFormats.Bgr32, null);
 
                 // Add an event handler to be called whenever there is new color frame data
                 this.sensor.ColorFrameReady += this.SensorColorFrameReady;
@@ -111,16 +101,15 @@ namespace ColoursInSpace
                 {
                     // Copy the pixel data from the image to a temporary array
                     colourFrame.CopyPixelDataTo(this.colourPixels);
-
-                    // Write the pixel data into the bitmap
-                    this.colourBitmap.WritePixels(new Int32Rect(0, 0, this.colourBitmap.PixelWidth, this.colourBitmap.PixelHeight),
-                                                 this.colourPixels,
-                                                 this.colourBitmap.PixelWidth * sizeof(int),
-                                                 0);
                 }
             }
 
+
+			//TODO: Switch to just using colourPixels?
             byte[] pixelDataClone = new byte[(640 * 480 * 4)];
+			this.colourPixels.CopyTo(pixelDataClone, 0);
+			//
+
             ProcessPixelData(pixelDataClone);            
         }
     }
