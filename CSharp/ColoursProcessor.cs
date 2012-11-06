@@ -50,6 +50,7 @@ namespace ColoursInSpace
 			Colours colours = new Colours();
 			//Convert the BGRA bytes into colours
             colours.ProcessPixelBgraData(colourPixels);
+            this.sendOscMsg();
         }
 
 

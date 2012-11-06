@@ -19,7 +19,7 @@ namespace ColoursInSpace
 		public OSC(string ipAdress = "127.0.0.1", ushort port = 57120)
         {
 			disposed = false;
-            writer = new UdpWriter(ipAdress, port);
+            writer = new UdpWriter(ipAdress, (int)port);
 			count = 0;
         }
 
@@ -48,15 +48,13 @@ namespace ColoursInSpace
 
 		public void SendMsg()
         {
-            //OscElement msg = new OscElement("/test", arr);
-            //OscBundle bundle = new OscBundle();
-
-			count = (count++) % 30;
-			if (count == 29)
-			{
-				OscElement msg = new OscElement("/chat", "I've got 30 frames!");
-				writer.Send(msg);
-			}
+            //count++;
+            //if (count == 29)
+            //{
+                OscElement msg = new OscElement("/chat", "I've got a frame!");
+                writer.Send(msg);
+            //    count = 0;
+            //}
         }
     }
 }
