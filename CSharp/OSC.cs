@@ -10,7 +10,7 @@ namespace ColoursInSpace
 {
 	public delegate void SendOscMsg();
 
-    class OSC
+    class OSC : IDisposable
     {
         private UdpWriter writer;
 		private bool disposed;
@@ -26,23 +26,22 @@ namespace ColoursInSpace
 		#region Destructors and Dispose
 		~OSC()
 		{
-			dispose(true);
+			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
 
 		//C# Disposing pattern
-		public void dispose(bool disposing)
+		private void Dispose(bool disposing)
 		{
 			if (!disposed)
 				if (disposing)
-					dispose();
+					Dispose();
 			disposed = true;
 		}
 
-		private bool dispose()
+		public void Dispose()
 		{
 			this.writer.Dispose();
-			return true;
 		}
 		#endregion
 

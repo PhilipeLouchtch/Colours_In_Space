@@ -31,11 +31,24 @@ namespace ColoursInSpace
 
         public MainWindow()
         {
-            osc = new OSC(IPAddress.Loopback.ToString());
+            /*osc = new OSC(IPAddress.Loopback.ToString());
 			coloursProcessor = new ColoursProcessor(osc.SendMsg);
 			kinectLogic = new Kinect(coloursProcessor.ProcessPixelData);
-			kinectThread = new Thread(new ThreadStart(kinectLogic.ConnectToSensor));
+			kinectThread = new Thread(new ThreadStart(kinectLogic.ConnectToSensor));*/
             InitializeComponent();
+        }
+
+        private void WindowLoaded(object sender, RoutedEventArgs e)
+        {
+            osc = new OSC(IPAddress.Loopback.ToString());
+            coloursProcessor = new ColoursProcessor(osc.SendMsg);
+            kinectLogic = new Kinect(coloursProcessor.ProcessPixelData);
+            kinectThread = new Thread(new ThreadStart(kinectLogic.ConnectToSensor));
+        }
+
+        private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            osc.Dispose();
         }
 
         private void zeButton_Click(object sender, RoutedEventArgs e)
@@ -49,7 +62,7 @@ namespace ColoursInSpace
 			}
 			else
 				base.Close();
-
         }
+
     }
 }

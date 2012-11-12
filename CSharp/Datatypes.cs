@@ -21,7 +21,7 @@ namespace ColoursInSpace
         {
 			ParallelOptions parallelOptions = new ParallelOptions();		
            
-			//TODO: Tweak this when done
+			//TODO: Tweak the #iterations when done
 			//TODO: Test for correctness
 			int iterations = 4;
 			parallelOptions.MaxDegreeOfParallelism = iterations;
@@ -29,10 +29,12 @@ namespace ColoursInSpace
 			//Convert the pixelData to colours using # of iterations threads
 			Parallel.For(0, iterations, parallelOptions, (iterationNo) =>
 			{
+                ArrayIndexTranslation translator = new ArrayIndexTranslation();
 				for (int i = (iterationNo * length); i < (length * iterationNo); i += 4)
 				{
-					int x = (i >> 2) % 640;
-					int y = (i >> 2) / 640;
+                    translator.TranslateTo2D(i);
+                    int x = translator.x;
+					int y = translator.y;
 					pixels[x, y] = Color.FromArgb(pixelData[i + 3], pixelData[i + 2], pixelData[i + 1], pixelData[i]);
 				}
 			});
@@ -65,4 +67,42 @@ namespace ColoursInSpace
 		}
 
 	}
+
+    class ArrayIndexTranslation
+    {
+        public int x 
+        { 
+            get {
+                if (x == -1 || x >= 640)
+                    throw new System.IndexOutOfRangeException("X coordinate is out of range");
+                return x;
+            } 
+            private set { x = value; }
+        }
+
+        public int y
+        {   get { 
+                if (x == -1 || x >= 480)
+                    throw new System.IndexOutOfRangeException("Y coordinate is out of range");
+                return x;
+            }
+            private set { y = value; }
+        }
+
+        public ArrayIndexTranslation()
+        {
+            x = -1;
+            y = -1;
+        }
+
+        /// <summary>
+        /// Translate the index of the 1D array into 2D array indexes
+        /// </summary>
+        /// <param name="i">1D Array index to be translated to 2D</param>
+        public void TranslateTo2D(int i)
+        {
+            int x = (i >> 2) % 640;
+			int y = (i >> 2) / 640;
+        }
+    }
 }
