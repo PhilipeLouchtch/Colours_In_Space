@@ -54,16 +54,19 @@ namespace ColoursInSpace
         private void zeButton_Click(object sender, RoutedEventArgs e)
         {
 			//Very hacky...
-			if ( ((Button)sender).Content != "Kill it")
+			if (((Button)sender).Content != "Kill it")
 			{
 				//We have lift off
-				Window1 configWindow = new Window1();
-				configWindow.Show(); //Just for the show...
+				//Window1 configWindow = new Window1();
+				//configWindow.Show(); //Just for the show...
 				kinectThread.Start();
 				((Button)sender).Content = "Kill it";
 			}
 			else
+			{
 				base.Close();
+			}
+
         }
 
     }
