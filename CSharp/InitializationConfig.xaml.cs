@@ -21,14 +21,14 @@ namespace ColoursInSpace
 	/// 
 
 
-	public partial class IntiConfigWindow : Window
+	public partial class InitConfigWindow : Window
 	{
 
 		private ResourceDictionary previewImages;
 
         private RuntimeSettings settings;
 
-		public IntiConfigWindow()
+		public InitConfigWindow()
 		{
 			previewImages = new ResourceDictionary();
 			previewImages.Source = new Uri("/Resources/PreviewImagesDictionary.xaml", UriKind.Relative);

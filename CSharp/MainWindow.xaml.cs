@@ -31,10 +31,6 @@ namespace ColoursInSpace
 
         public MainWindow()
         {
-            /*osc = new OSC(IPAddress.Loopback.ToString());
-			coloursProcessor = new ColoursProcessor(osc.SendMsg);
-			kinectLogic = new Kinect(coloursProcessor.ProcessPixelData);
-			kinectThread = new Thread(new ThreadStart(kinectLogic.ConnectToSensor));*/
             InitializeComponent();
         }
 
@@ -57,8 +53,8 @@ namespace ColoursInSpace
 			if (((Button)sender).Content != "Kill it")
 			{
 				//We have lift off
-				//Window1 configWindow = new Window1();
-				//configWindow.Show(); //Just for the show...
+                InitConfigWindow configWindow = new InitConfigWindow();
+				configWindow.Show(); //Just for the show...
 				kinectThread.Start();
 				((Button)sender).Content = "Kill it";
 			}
