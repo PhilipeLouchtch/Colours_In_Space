@@ -57,6 +57,8 @@ namespace ColoursInSpace
 			if ( ((Button)sender).Content != "Kill it")
 			{
 				//We have lift off
+				Window1 configWindow = new Window1();
+				configWindow.Show(); //Just for the show...
 				kinectThread.Start();
 				((Button)sender).Content = "Kill it";
 			}

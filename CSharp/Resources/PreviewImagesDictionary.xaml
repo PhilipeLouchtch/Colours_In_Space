@@ -1,0 +1,8 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <Image Source="/Resources/PreviewPicture3TargetsNoZoom.jpg" x:Key="3NoZoom" />
+    <Image Source="/Resources/PreviewPicture3TargetsZoom.jpg" x:Key="3Zoom" />
+    <Image Source="/Resources/PreviewPicture5TargetsNoZoom.jpg" x:Key="5NoZoom" />
+    <Image Source="/Resources/PreviewPicture5TargetsZoom.jpg" x:Key="5Zoom" />  
+    
+</ResourceDictionary>
