@@ -1,7 +1,7 @@
 ﻿<Window
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:Properties="clr-namespace:ColoursInSpace.Properties" x:Class="ColoursInSpace.Window1"
+        xmlns:Properties="clr-namespace:ColoursInSpace.Properties" x:Class="ColoursInSpace.IntiConfigWindow"
         Title="Colours In Space Initial Configuration Window" Height="386" Width="490" ResizeMode="NoResize">
     <Grid>
         <GroupBox x:Name="ImagePreviewGroup" Header="Amount of Targets" HorizontalAlignment="Left" Margin="10,10,0,10" Width="241" >

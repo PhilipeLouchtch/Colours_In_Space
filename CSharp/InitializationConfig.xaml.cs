@@ -21,15 +21,18 @@ namespace ColoursInSpace
 	/// 
 
 
-	public partial class Window1 : Window
+	public partial class IntiConfigWindow : Window
 	{
 
 		private ResourceDictionary previewImages;
 
-		public Window1()
+        private RuntimeSettings settings;
+
+		public IntiConfigWindow()
 		{
 			previewImages = new ResourceDictionary();
 			previewImages.Source = new Uri("/Resources/PreviewImagesDictionary.xaml", UriKind.Relative);
+            settings = new RuntimeSettings();
 			InitializeComponent();
 			this.PreviewImagebox.Source = (previewImages["3NoZoom"] as System.Windows.Controls.Image).Source;
 		}

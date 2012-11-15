@@ -105,4 +105,48 @@ namespace ColoursInSpace
 			int y = (i >> 2) / 640;
         }
     }
+
+
+    class RuntimeSettings
+    {
+        /// <summary>
+        /// Enables the distance translation engine
+        /// </summary>
+        public bool distance    { get; set; }
+
+        /// <summary>
+        /// Enables the colour translation engine
+        /// </summary>
+        public bool colour      { get; set; }
+
+        /// <summary>
+        /// Makes the target boxes smaller effectively zooming in
+        /// </summary>
+        public bool zoom        { get; set; }
+
+
+        //Placeholder for the filter type
+        object filter;
+
+        /// <summary>
+        /// Volume, value range from 0 to 100. TODO: Define range of 0 to 100 for safety
+        /// </summary>
+        public ushort volume    { get; set; }
+
+
+        /// <summary>
+        /// Amout of TargetBoxes to be used, accepted values: 3, 5, 7. TODO: Define range.
+        /// </summary>
+        public ushort amntTargetBoxes { get; set; }
+
+        public RuntimeSettings()
+        {
+            distance = true;
+            colour = true;
+            zoom = false;
+            //filter;
+            volume = 50;
+            amntTargetBoxes = 3;
+        }
+    }
 }
