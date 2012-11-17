@@ -98,7 +98,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ColoursProcessor.cs" />
+    <Compile Include="FrameProcessor.cs" />
     <Compile Include="Datatypes.cs" />
     <Compile Include="Kinect.cs" />
     <Compile Include="MainWindow.xaml.cs">

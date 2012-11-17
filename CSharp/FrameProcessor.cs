@@ -11,25 +11,26 @@ using System.Threading;
 
 namespace ColoursInSpace
 {
-	public delegate void ProcessPixelData(byte[] colourPixels);
+	public delegate void ProcessFrameData(byte[] colourPixels, short[] depthPixels);
 
-	class ColoursProcessor
+	class FrameProcessor
 	{
-		private byte[] pixelBgraData;
+		private byte[] pixelBGRAData;
+		private short[] grayDepthData;
 
 		public ushort amntTargetBoxes { set; get; }
 
 		private SendOscMsg sendOscMsg;
 
 		/// <summary>
-		/// Initializes the ColoursProcessor class
+		/// Initializes the FrameProcessor class
 		/// </summary>
         /// <param name="amntTargetBoxes">Amount of colours to be stored (the amount of targets set)</param>
-		public ColoursProcessor(SendOscMsg sendOscMsg, ushort amntTargetBoxes = 3)
+		public FrameProcessor(SendOscMsg sendOscMsg, ushort amntTargetBoxes = 3)
 		{
 			this.sendOscMsg = sendOscMsg;
 			this.amntTargetBoxes = amntTargetBoxes;
-            pixelBgraData = new byte[(640 * 480 * 4)];  //Hardcoded size? Not very nice, yes
+            pixelBGRAData = new byte[(640 * 480 * 4)];  //Hardcoded size? Not very nice, yes
 		}
 
 		/// <summary>
@@ -38,18 +39,22 @@ namespace ColoursInSpace
 		/// <param name="colourBitmap">A cloned colourBitmap</param>
 		public void ProcessColourBitmap(WriteableBitmap colourBitmap)
 		{
-            colourBitmap.CopyPixels(this.pixelBgraData, colourBitmap.PixelWidth * sizeof(int), 0);
+            colourBitmap.CopyPixels(this.pixelBGRAData, colourBitmap.PixelWidth * sizeof(int), 0);
 		}
 
         /// <summary>
         /// Handles a new frame from the Kinect sensor
         /// </summary>
         /// <param name="colourBitmap">A cloned colourBitmap</param>
-        public void ProcessPixelData(byte[] colourPixels)
+		public void ProcessPixelData(byte[] colourPixels, short[] depthPixels)
         {
 			Colours colours = new Colours();
 			//Convert the BGRA bytes into colours
             colours.ProcessPixelBgraData(colourPixels);
+
+			//TODO: process depth data
+
+			//Purely for testing
             this.sendOscMsg();
         }
 

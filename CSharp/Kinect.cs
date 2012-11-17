@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,21 +22,26 @@ namespace ColoursInSpace
         /// <summary>
         /// Delegate to the ColoursProcessor class, processes the new frame of pixels
         /// </summary>
-        private ProcessPixelData ProcessPixelData;
+        private ProcessFrameData ProcessFrameData;
 
-        /// <summary>
-        /// Intermediate storage for the colour data received from the camera
-        /// </summary>
-        private byte[] colourPixels;
+		///// <summary>
+		///// Intermediate storage for the colour data received from the camera
+		///// </summary>
+		//private byte[] colourPixels;
+
+		///// <summary>
+		///// Intermediate storage for the depth data from the infrared camera
+		///// </summary>
+		private short[] grayDepthData;
 
         /// <summary>
         /// Execute startup tasks
         /// </summary>
-        public Kinect(ProcessPixelData ProcessPixelData)
+        public Kinect(ProcessFrameData ProcessPixelData)
         {
 			//Initialize the delegate
 			//this.ProcessColourBitmap = ProcessColourBitmap;
-            this.ProcessPixelData = ProcessPixelData;           
+            this.ProcessFrameData = ProcessPixelData;           
         }
 
 		public void ConnectToSensor()
@@ -57,12 +63,13 @@ namespace ColoursInSpace
             {
                 // Turn on the color stream to receive color frames
                 this.sensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
+				this.sensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
 
                 // Allocate space to put the pixels we'll receive
-                this.colourPixels = new byte[this.sensor.ColorStream.FramePixelDataLength];
+                //this.colourPixels = new byte[this.sensor.ColorStream.FramePixelDataLength];
 
                 // Add an event handler to be called whenever there is new color frame data
-                this.sensor.ColorFrameReady += this.SensorColorFrameReady;
+				this.sensor.AllFramesReady += this.SensorFrameReady;
 
                 // Start the sensor!
                 try
@@ -89,27 +96,46 @@ namespace ColoursInSpace
             }
         }
 
-        /// <summary>
-        /// Event handler for Kinect sensor's ColorFrameReady event
-        /// </summary>
-        /// <param name="sender">object sending the event</param>
-        /// <param name="e">event arguments</param>
-        private void SensorColorFrameReady(object sender, ColorImageFrameReadyEventArgs e)
-        {
-            using (ColorImageFrame colourFrame = e.OpenColorImageFrame())
-            {
-                if (colourFrame != null)
-                {
-                    // Copy the pixel data from the image to a temporary array
-                    colourFrame.CopyPixelDataTo(this.colourPixels);
+		/// <summary>
+		/// Event handler for Kinect sensor's AllFramesReady event. 
+		/// </summary>
+		/// <param name="sender">object sending the event</param>
+		/// <param name="e">event arguments</param>
+		private void SensorFrameReady(object sender, AllFramesReadyEventArgs e)
+		{
+			byte [] colourFrame = CopyColorPixels(e);
+			short[]  depthFrame = CopyDepthPixels(e);
+			ProcessFrameData(colourFrame, depthFrame);
+		}
 
-					//TODO: Switch to just using colourPixels?
-					byte[] pixelDataClone; // = new byte[(640 * 480 * 4)];
-					pixelDataClone = (byte[])this.colourPixels.Clone();
+		private byte[] CopyColorPixels(AllFramesReadyEventArgs e)
+		{
+			using (ColorImageFrame colourFrame = e.OpenColorImageFrame())
+			{
+				if (colourFrame != null)
+				{
+					byte[] colourPixels = new byte[(640 * 480 * 4)];
+					colourFrame.CopyPixelDataTo(colourPixels);
+					return colourPixels;
+				}
+				else
+					return null;
+			}
+		}
 
-					ProcessPixelData(pixelDataClone);
-                }
-            }			
-        }
+		private short[] CopyDepthPixels(AllFramesReadyEventArgs e)
+		{
+			using (DepthImageFrame depthFrame = e.OpenDepthImageFrame())
+			{
+				if (depthFrame != null)
+				{
+					short[] depthPixels = new short[(640 * 480)];
+					depthFrame.CopyPixelDataTo(depthPixels);
+					return depthPixels;
+				}
+				else
+					return null;
+			}
+		}
     }
 }

@@ -23,7 +23,7 @@ namespace ColoursInSpace
     public partial class MainWindow : Window
     {
         private OSC osc;
-		private ColoursProcessor coloursProcessor;
+		private FrameProcessor coloursProcessor;
 		private Kinect kinectLogic;
 
 		//Thread where the KinectLogic start from
@@ -37,7 +37,7 @@ namespace ColoursInSpace
         private void WindowLoaded(object sender, RoutedEventArgs e)
         {
             osc = new OSC(IPAddress.Loopback.ToString());
-            coloursProcessor = new ColoursProcessor(osc.SendMsg);
+            coloursProcessor = new FrameProcessor(osc.SendMsg);
             kinectLogic = new Kinect(coloursProcessor.ProcessPixelData);
             kinectThread = new Thread(new ThreadStart(kinectLogic.ConnectToSensor));
         }
@@ -54,7 +54,7 @@ namespace ColoursInSpace
 			{
 				//We have lift off
                 InitConfigWindow configWindow = new InitConfigWindow();
-				configWindow.Show(); //Just for the show...
+				//configWindow.Show(); //Just for the show...
 				kinectThread.Start();
 				((Button)sender).Content = "Kill it";
 			}

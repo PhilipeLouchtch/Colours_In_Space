@@ -28,13 +28,11 @@ namespace ColoursInSpace
 			int length = pixelData.Length / iterations;
 			//Convert the pixelData to colours using # of iterations threads
 			Parallel.For(0, iterations, parallelOptions, (iterationNo) =>
-			{
-                ArrayIndexTranslation translator = new ArrayIndexTranslation();
-				for (int i = (iterationNo * length); i < (length * iterationNo); i += 4)
+			{                
+				for (int i = (iterationNo * length); i < (length * iterationNo + length); i += 4)
 				{
-                    translator.TranslateTo2D(i);
-                    int x = translator.x;
-					int y = translator.y;
+					int x = ArrayIndexTranslation.TranslateToX(i);
+					int y = ArrayIndexTranslation.TranslateToY(i);
 					pixels[x, y] = Color.FromArgb(pixelData[i + 3], pixelData[i + 2], pixelData[i + 1], pixelData[i]);
 				}
 			});
@@ -65,46 +63,7 @@ namespace ColoursInSpace
 			get { return this.colours[index]; }
 			set { this.colours[index] = value; }
 		}
-
 	}
-
-    class ArrayIndexTranslation
-    {
-        public int x 
-        { 
-            get {
-                if (x == -1 || x >= 640)
-                    throw new System.IndexOutOfRangeException("X coordinate is out of range");
-                return x;
-            } 
-            private set { x = value; }
-        }
-
-        public int y
-        {   get { 
-                if (x == -1 || x >= 480)
-                    throw new System.IndexOutOfRangeException("Y coordinate is out of range");
-                return x;
-            }
-            private set { y = value; }
-        }
-
-        public ArrayIndexTranslation()
-        {
-            x = -1;
-            y = -1;
-        }
-
-        /// <summary>
-        /// Translate the index of the 1D array into 2D array indexes
-        /// </summary>
-        /// <param name="i">1D Array index to be translated to 2D</param>
-        public void TranslateTo2D(int i)
-        {
-            int x = (i >> 2) % 640;
-			int y = (i >> 2) / 640;
-        }
-    }
 
 
     class RuntimeSettings

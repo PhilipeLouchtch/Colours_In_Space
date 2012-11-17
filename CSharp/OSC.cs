@@ -47,13 +47,13 @@ namespace ColoursInSpace
 
 		public void SendMsg()
         {
-            //count++;
-            //if (count == 29)
-            //{
+            count++;
+            if (count == 29)
+            {
                 OscElement msg = new OscElement("/chat", "I've got a frame!");
                 writer.Send(msg);
-            //    count = 0;
-            //}
+                count = 0;
+            }
         }
     }
 }
