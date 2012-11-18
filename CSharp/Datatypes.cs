@@ -36,7 +36,7 @@ namespace ColoursInSpace
 			}
         }
 				
-        public void ProcessPixelBgraData(byte[] pixelData)
+        public void ProcessPixelBgraData(byte[] pixelData, object sender)
         {
 			ParallelOptions parallelOptions = new ParallelOptions();
 
@@ -63,17 +63,7 @@ namespace ColoursInSpace
 				}
 			});
 
-			//int x = 0;
-			//int y = 0;
-			//int length = pixelData.Length;
-			//for (int i = 0; i < length; i += 4)
-			//{			
-			//	pixels[x, y].blue = pixelData[i];
-			//	pixels[x, y].green = pixelData[i + 1]; 
-			//	pixels[x, y].red = pixelData[i + 2];
-				
-			//	if (x < 639) x++; else { x = 0; y++; }
-			//}
+			return;
         }
     }
 

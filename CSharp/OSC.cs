@@ -8,19 +8,17 @@ using Ventuz.OSC;
 
 namespace ColoursInSpace
 {
-	public delegate void SendOscMsg();
+	public delegate void SendOscMsg(string message);
 
     class OSC : IDisposable
     {
         private UdpWriter writer;
 		private bool disposed;
-		private int count;
 
 		public OSC(string ipAdress = "127.0.0.1", ushort port = 57120)
         {
 			disposed = false;
             writer = new UdpWriter(ipAdress, (int)port);
-			count = 0;
         }
 
 		#region Destructors and Dispose
@@ -45,15 +43,11 @@ namespace ColoursInSpace
 		}
 		#endregion
 
-		public void SendMsg()
+		public void SendMsg(string message)
         {
-            count++;
-            if (count == 29)
-            {
-                OscElement msg = new OscElement("/chat", "I've got a frame!");
+				OscElement msg = new OscElement("/chat", message);
                 writer.Send(msg);
-                count = 0;
-            }
         }
     }
+
 }

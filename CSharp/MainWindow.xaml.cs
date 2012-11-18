@@ -37,9 +37,9 @@ namespace ColoursInSpace
         private void WindowLoaded(object sender, RoutedEventArgs e)
         {
             osc = new OSC(IPAddress.Loopback.ToString());
-            coloursProcessor = new FrameProcessor(osc.SendMsg);
-            kinectLogic = new Kinect(coloursProcessor.ProcessPixelData);
-            kinectThread = new Thread(new ThreadStart(kinectLogic.ConnectToSensor));
+            coloursProcessor = new FrameProcessor(this.osc.SendMsg);
+			kinectLogic = new Kinect(this.coloursProcessor.ProcessPixelData);
+            kinectThread = new Thread(new ThreadStart(this.kinectLogic.ConnectToSensor));
         }
 
         private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)

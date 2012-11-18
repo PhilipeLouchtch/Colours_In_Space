@@ -130,8 +130,7 @@ namespace ColoursInSpace
 					depthFrame.CopyPixelDataTo(depthPixels);
 				}
 			}
-
-			ProcessFrameData(this.colourPixels, this.depthPixels);
+			ProcessFrameData(colourPixels, depthPixels);
 		}
 
     }
