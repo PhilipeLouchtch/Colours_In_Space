@@ -53,7 +53,7 @@ namespace ColoursInSpace
 			if (((Button)sender).Content != "Kill it")
 			{
 				//We have lift off
-                InitConfigWindow configWindow = new InitConfigWindow();
+                //InitConfigWindow configWindow = new InitConfigWindow();
 				//configWindow.Show(); //Just for the show...
 				kinectThread.Start();
 				((Button)sender).Content = "Kill it";
@@ -61,6 +61,7 @@ namespace ColoursInSpace
 			else
 			{
 				base.Close();
+				this.Close();
 			}
 
         }

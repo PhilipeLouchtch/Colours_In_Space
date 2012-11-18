@@ -3,39 +3,77 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace ColoursInSpace
 {
+	class Colour
+	{
+		public byte red;
+		public byte green;
+		public byte blue;
+
+		public Colour(byte red, byte green, byte blue)
+		{
+			this.red = red;
+			this.green = green;
+			this.blue = blue;
+		}
+	}
+
     class Colours
     {
-        public Color[,] pixels;
+        public Colour[,] pixels;
 
         public Colours()
         {
-            pixels = new Color[640, 480];            
+            pixels = new Colour[640, 480];
+			for (int i = 0; i < 480; i++)
+			{
+				for (int j = 0; j < 640; j++)
+				{
+					pixels[j, i] = new Colour(0, 0, 0);
+				}
+			}
         }
 				
         public void ProcessPixelBgraData(byte[] pixelData)
         {
-			ParallelOptions parallelOptions = new ParallelOptions();		
-           
+			ParallelOptions parallelOptions = new ParallelOptions();
+
 			//TODO: Tweak the #iterations when done
 			//TODO: Test for correctness
-			int iterations = 4;
+			int iterations = 2;
 			parallelOptions.MaxDegreeOfParallelism = iterations;
 			int length = pixelData.Length / iterations;
 			//Convert the pixelData to colours using # of iterations threads
 			Parallel.For(0, iterations, parallelOptions, (iterationNo) =>
-			{                
-				for (int i = (iterationNo * length); i < (length * iterationNo + length); i += 4)
-				{
-					int x = ArrayIndexTranslation.TranslateToX(i);
-					int y = ArrayIndexTranslation.TranslateToY(i);
-					pixels[x, y] = Color.FromArgb(pixelData[i + 3], pixelData[i + 2], pixelData[i + 1], pixelData[i]);
+			{
+				int from = iterationNo * length;
+				int to	 = length * (iterationNo + 1);
+				int x	 = (from >> 2) % 640;
+				int y	 = (from >> 2) / 640;
+
+				for (int i = from; i < to; i += 4)
+				{			
+					pixels[x, y].blue = pixelData[i];
+					pixels[x, y].green = pixelData[i + 1]; 
+					pixels[x, y].red = pixelData[i + 2];
+				
+					if (x < 639) x++; else { x = 0; y++; }  //more efficient than a modulo and a div operation
 				}
 			});
+
+			//int x = 0;
+			//int y = 0;
+			//int length = pixelData.Length;
+			//for (int i = 0; i < length; i += 4)
+			//{			
+			//	pixels[x, y].blue = pixelData[i];
+			//	pixels[x, y].green = pixelData[i + 1]; 
+			//	pixels[x, y].red = pixelData[i + 2];
+				
+			//	if (x < 639) x++; else { x = 0; y++; }
+			//}
         }
     }
 
@@ -46,7 +84,7 @@ namespace ColoursInSpace
 	/// </summary>
     class TargetColours
     {
-		private List<Color> colours;
+		private List<Colour> colours;
 
 		/// <summary>
 		/// Initializes the container
@@ -55,10 +93,10 @@ namespace ColoursInSpace
 		/// should be equal to the amount of "Target Boxes"</param>
 		public TargetColours(ushort capacity)
 		{
-			colours = new List<Color>(capacity);
+			colours = new List<Colour>(capacity);
 		}
 
-		public Color this[ushort index]
+		public Colour this[ushort index]
 		{
 			get { return this.colours[index]; }
 			set { this.colours[index] = value; }

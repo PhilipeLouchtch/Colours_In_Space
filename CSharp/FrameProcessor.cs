@@ -20,6 +20,8 @@ namespace ColoursInSpace
 
 		public ushort amntTargetBoxes { set; get; }
 
+		private Colours colours;
+
 		private SendOscMsg sendOscMsg;
 
 		/// <summary>
@@ -28,6 +30,7 @@ namespace ColoursInSpace
         /// <param name="amntTargetBoxes">Amount of colours to be stored (the amount of targets set)</param>
 		public FrameProcessor(SendOscMsg sendOscMsg, ushort amntTargetBoxes = 3)
 		{
+			colours = new Colours();
 			this.sendOscMsg = sendOscMsg;
 			this.amntTargetBoxes = amntTargetBoxes;
             pixelBGRAData = new byte[(640 * 480 * 4)];  //Hardcoded size? Not very nice, yes
@@ -48,7 +51,6 @@ namespace ColoursInSpace
         /// <param name="colourBitmap">A cloned colourBitmap</param>
 		public void ProcessPixelData(byte[] colourPixels, short[] depthPixels)
         {
-			Colours colours = new Colours();
 			//Convert the BGRA bytes into colours
             colours.ProcessPixelBgraData(colourPixels);
 
