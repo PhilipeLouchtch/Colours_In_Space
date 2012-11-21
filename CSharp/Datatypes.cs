@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace ColoursInSpace
 {
+
 	class Colour
 	{
 		public byte red;
@@ -93,6 +94,7 @@ namespace ColoursInSpace
 		}
 	}
 
+    public delegate void SettingsChanged();
 
     class RuntimeSettings
     {
@@ -107,13 +109,27 @@ namespace ColoursInSpace
         public bool colour      { get; set; }
 
         /// <summary>
-        /// Makes the target boxes smaller effectively zooming in
+        /// Makes the target boxes smaller, effectively zooming in
+        /// Fires a settingsChanged event when value is changed
         /// </summary>
-        public bool zoom        { get; set; }
+		private bool _zoom;
+		public bool zoom 
+		{ 
+			get { return this._zoom; } 
+			set 
+			{ 
+				if (this._zoom != value) 
+				{ 
+					_zoom = value;
+					if (settingsChanged != null)
+						this.settingsChanged(); 
+				} 
+			} 
+		}
 
 
         //Placeholder for the filter type
-        object filter;
+        public object filter;
 
         /// <summary>
         /// Volume, value range from 0 to 100. TODO: Define range of 0 to 100 for safety
@@ -123,17 +139,80 @@ namespace ColoursInSpace
 
         /// <summary>
         /// Amout of TargetBoxes to be used, accepted values: 3, 5, 7. TODO: Define range.
+        /// Fires a settingsChanged event when value is changed
         /// </summary>
-        public ushort amntTargetBoxes { get; set; }
+		private ushort _amntTargetBoxes;
+        public	ushort	amntTargetBoxes 
+        {
+			get { return this._amntTargetBoxes; }
+			set 
+			{ 
+				if (this._amntTargetBoxes != value) 
+				{ 
+					_amntTargetBoxes = value;
+					if (settingsChanged != null)
+						settingsChanged(); 
+				} 
+			} 
+        }
 
+        public event SettingsChanged settingsChanged;
+
+        /// <summary>
+        /// Constructor with default settings
+        /// </summary>
         public RuntimeSettings()
         {
             distance = true;
             colour = true;
-            zoom = false;
-            //filter;
+			zoom = new Boolean();
+			zoom = false;
+            //filter; nothing yet....
             volume = 50;
-            amntTargetBoxes = 3;
+            amntTargetBoxes = 5;
+        }
+    }
+
+    struct Point
+    {
+        public int x { get; set; }
+        public int y { get; set; }
+    }
+
+    /// <summary>
+    /// Represents the positioning of a single TargetBox
+    /// </summary>
+    struct TargetBox
+    {
+        /// <summary>
+        /// The width of the box
+        /// </summary>
+        public int x { get; set; }
+
+        /// <summary>
+        /// The height of the box
+        /// </summary>
+        public int y { get; set; }
+
+		/// <summary>
+		/// Dimension of the box
+		/// </summary>
+		public int dimension { get; set; }
+
+        public Point middle;
+    }
+
+    class TargetBoxes
+    {
+        public List<TargetBox> boxes;
+
+		/// <summary>
+		/// The padding (space) between the boxes
+		/// </summary>
+
+        public TargetBoxes(int size )
+        {
+            boxes = new List<TargetBox>(size);
         }
     }
 }

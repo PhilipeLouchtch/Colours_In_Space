@@ -19,26 +19,49 @@ namespace ColoursInSpace
 		private byte[] pixelBGRAData;
 		private short[] grayDepthData;
 
-		public ushort amntTargetBoxes { set; get; }
+        /// <summary>
+        /// Storing all the kinect settings here
+        /// </summary>
+        public RuntimeSettings settings;
 
+
+        /// <summary>
+        /// Intermediary storage for the processed ABGR frame
+        /// </summary>
 		private Colours colours;
 
+
+        /// <summary>
+        /// Delegate to the OSC.SendMsg method
+        /// </summary>
 		private SendOscMsg sendOscMsg;
 
+
+        /// <summary>
+        /// BackgroundWorker for handling the processing of a colour frame ready event from the KinectLogic
+        /// </summary>
 		private BackgroundWorker backgroundProcessColour;
+
+        /// <summary>
+        /// BackgroundWorker for handling the processing of a depth frame ready event from the KinectLogic
+        /// </summary>
 		private BackgroundWorker backgroundProcessDepth;
 
 		/// <summary>
 		/// Initializes the FrameProcessor class
 		/// </summary>
         /// <param name="amntTargetBoxes">Amount of colours to be stored (the amount of targets set)</param>
-		public FrameProcessor(SendOscMsg sendOscMsg, ushort amntTargetBoxes = 3)
+		public FrameProcessor(SendOscMsg sendOscMsg, RuntimeSettings settings)
 		{
 			colours = new Colours();
 			this.sendOscMsg = sendOscMsg;
-			this.amntTargetBoxes = amntTargetBoxes;
             pixelBGRAData = new byte[(640 * 480 * 4)];  //Hardcoded size? Not very nice, yes
 
+			this.settings = settings;
+			processTargetBoxChanges();
+			settings.settingsChanged += this.processTargetBoxChanges;
+
+            //Setting up the backgroundProcesses
 			backgroundProcessColour = new BackgroundWorker();
 			backgroundProcessDepth = new BackgroundWorker();
 			backgroundProcessColour.DoWork += new DoWorkEventHandler(this.ProcessColourData);
@@ -82,9 +105,10 @@ namespace ColoursInSpace
 
 		public TargetColours GetTargetBoxColours()
 		{
-			TargetColours targetColours = new TargetColours(amntTargetBoxes);
+            ushort        targets       = settings.amntTargetBoxes;
+			TargetColours targetColours = new TargetColours(targets);
 
-			switch (amntTargetBoxes)
+            switch (targets)
 			{
 				case 3:
 					break;
@@ -96,6 +120,34 @@ namespace ColoursInSpace
 
 			return targetColours;
 		}
+
+		private void processTargetBoxChanges()
+        {
+            bool   zoom   = settings.zoom;
+            ushort boxes  = settings.amntTargetBoxes;
+            TargetBox	targetBox = new TargetBox();
+			TargetBoxes targetBoxes;
+
+            // Padding between the targetBoxes, there are n - 1 paddings needed
+            //int padding = 100 * (1 / (boxes - 1));
+
+			// Initialize the targetBoxes collection
+			targetBoxes = new TargetBoxes(boxes);
+
+			// The vertical middle
+			targetBox.middle.y = 480 / 2;
+			targetBox.y = targetBox.middle.y;
+			int boxStep = 640 / (boxes + 1);
+			int boxDimension = 540 / (boxes + 1) / 2;
+
+			for (int i = 0; i < boxes; i++)
+			{
+				targetBox.middle.x =  boxStep * (i + 1);
+				targetBox.x = targetBox.middle.x - boxDimension;
+				targetBox.dimension = boxDimension * 2;
+				targetBoxes.boxes.Add(targetBox);
+			}
+        }
 		
 	}
 }
