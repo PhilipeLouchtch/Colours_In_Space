@@ -94,7 +94,7 @@ namespace ColoursInSpace
 		}
 	}
 
-    public delegate void SettingsChanged();
+    public delegate void SettingsChanged(Object sender);
 
     class RuntimeSettings
     {
@@ -122,7 +122,7 @@ namespace ColoursInSpace
 				{ 
 					_zoom = value;
 					if (settingsChanged != null)
-						this.settingsChanged(); 
+						this.settingsChanged(this); 
 				} 
 			} 
 		}
@@ -134,7 +134,7 @@ namespace ColoursInSpace
         /// <summary>
         /// Volume, value range from 0 to 100. TODO: Define range of 0 to 100 for safety
         /// </summary>
-        public ushort volume    { get; set; }
+        public ushort volume { get; set; }
 
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace ColoursInSpace
 				{ 
 					_amntTargetBoxes = value;
 					if (settingsChanged != null)
-						settingsChanged(); 
+						settingsChanged(this); 
 				} 
 			} 
         }
@@ -179,27 +179,36 @@ namespace ColoursInSpace
         public int y { get; set; }
     }
 
+	class HSLColour
+    {
+        public double h;
+        public double s;
+		public double l;
+    }
+
     /// <summary>
     /// Represents the positioning of a single TargetBox
     /// </summary>
-    struct TargetBox
+    class TargetBox
     {
         /// <summary>
         /// The width of the box
         /// </summary>
         public int x { get; set; }
 
-        /// <summary>
-        /// The height of the box
-        /// </summary>
-        public int y { get; set; }
-
 		/// <summary>
 		/// Dimension of the box
 		/// </summary>
 		public int dimension { get; set; }
 
+		public HSLColour hslColour { get; set; }
+
         public Point middle;
+
+		public TargetBox()
+		{
+			hslColour = new HSLColour();
+		}
     }
 
     class TargetBoxes
