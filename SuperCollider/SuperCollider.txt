@@ -1,1 +1,44 @@
-Empty doc to add the dir
+////////////////HARBISSONS SONOCHROMATIC SCALE IN 2D//////////////////////// 
+
+//List of colours
+//0. rose
+//1. magenta
+//2. violet
+//3. blue
+//4. azure
+//5. cyan
+//6. spring
+//7. green
+//8. Charteuse
+//9. yellow
+//10. orange
+//11. red
+
+//OSC receive: 
+n = NetAddr("127.0.0.1", 57120);
+o = OSCresponder(n, '/chat', { |t, r, msg| ("time:" + t).postln; msg[1].postln; ~msg = msg[1]; }).add;
+
+//OSC send test:
+m = NetAddr("127.0.0.1", 57120);
+m.sendMsg('/chat', "1,4,3,4,5,6,7,8,9,0");
+ 
+~frequencies = Array.with(174.61, 185.0, 196.0, 207.65, 220.0, 233.08, 246.94, 261.63, 277.18, 293.66, 311.13, 329.63); //array to store the frequencies of the chromatic scale from F3 to E4. 
+ 
+SynthDef.new('sonochromatic', {
+   |freq, pos, vol| //parameters to be controlled by Kinect: colour, postition and volume
+	 var sin, pan; 
+	 sin = SinOsc.ar(freq:freq, mul:vol);
+	 pan = Pan2.ar(sin, pos);
+	 Out.ar([0, 1], pan);
+ }).add;
+
+x = Synth.new(\sonochromatic); //initiate synth
+
+//in the code below the synth should receive messages from OSC and send them to the synth
+Routine{	
+	inf.do({
+		~convert = ~frequencies.at(~msg.asString.at(2).asString.asInteger;); //colourCode should comminicate with csharp via OSC, to test fill in a number from 0 to 11
+		x.set(\freq, ~convert, \pos, -1, \vol, 0.5);
+		1.wait;
+	});
+}.play;
