@@ -9,6 +9,7 @@ using Ventuz.OSC;
 namespace ColoursInSpace
 {
 	public delegate void SendOscMsg(string message);
+    public delegate void SendOscColourBoxes5(int colour1, int colour2, int colour3, int colour4, int colour5);
 
     class OSC : IDisposable
     {
@@ -47,6 +48,12 @@ namespace ColoursInSpace
         {
 				OscElement msg = new OscElement("/chat", message);
                 writer.Send(msg);
+        }
+
+        public void SendColourBoxes5(int colour1, int colour2, int colour3, int colour4, int colour5)
+        {
+            OscElement msg = new OscElement("/boxes5", colour1, colour2, colour3, colour4, colour5);
+            writer.Send(msg);
         }
     }
 

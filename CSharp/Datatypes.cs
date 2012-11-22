@@ -7,6 +7,22 @@ using System.Threading.Tasks;
 namespace ColoursInSpace
 {
 
+    public enum ColourTypes
+    {
+        Red = 0,
+        Orange,
+        Yellow,
+        Chartreuse,
+        Green,
+        Spring,
+        Cyan,
+        Azure,
+        Blue,
+        Violet,
+        Magenta,
+        Rose
+    };
+
 	class Colour
 	{
 		public byte red;
@@ -201,14 +217,9 @@ namespace ColoursInSpace
 		/// </summary>
 		public int dimension { get; set; }
 
-		public HSLColour hslColour { get; set; }
+        public ColourTypes colour { get; set; }
 
         public Point middle;
-
-		public TargetBox()
-		{
-			hslColour = new HSLColour();
-		}
     }
 
     class TargetBoxes
