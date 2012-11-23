@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace ColoursInSpace
 {
 
-    public enum ColourTypes
+    public enum SonochromaticColourType
     {
         Red = 0,
         Orange,
@@ -195,13 +195,6 @@ namespace ColoursInSpace
         public int y { get; set; }
     }
 
-	class HSLColour
-    {
-        public double h;
-        public double s;
-		public double l;
-    }
-
     /// <summary>
     /// Represents the positioning of a single TargetBox
     /// </summary>
@@ -212,14 +205,20 @@ namespace ColoursInSpace
         /// </summary>
         public int x { get; set; }
 
+		public int depth { get; set; }
+
 		/// <summary>
 		/// Dimension of the box
 		/// </summary>
 		public int dimension { get; set; }
 
-        public ColourTypes colour { get; set; }
-
         public Point middle;
+
+		public TargetBox()
+		{
+			// nothing for now
+			depth = 0;
+		}
     }
 
     class TargetBoxes
@@ -235,4 +234,19 @@ namespace ColoursInSpace
             boxes = new List<TargetBox>(size);
         }
     }
+
+	/// <summary>
+	/// Contains information about the TargetBox, this will be sent to the OSC methods
+	/// </summary>
+	public class ShippingData
+	{
+		public int sonochromaticColour { get; private set; }
+
+		public int distance { get; private set; }
+
+		public ShippingData(SonochromaticColourType colourType, int depth = 0)
+		{
+			sonochromaticColour = (int)colourType;
+		}
+	}
 }

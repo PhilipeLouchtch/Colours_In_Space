@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Net;
 using Ventuz.OSC;
 
 namespace ColoursInSpace
 {
-	public delegate void SendOscMsg(string message);
-    public delegate void SendOscColourBoxes5(int colour1, int colour2, int colour3, int colour4, int colour5);
+	public delegate void SendOSCMsg(string message);
+    public delegate void SendOSCBoxes(List<ShippingData> shippingData);
 
     class OSC : IDisposable
     {
@@ -50,10 +46,29 @@ namespace ColoursInSpace
                 writer.Send(msg);
         }
 
-        public void SendColourBoxes5(int colour1, int colour2, int colour3, int colour4, int colour5)
+        public void SendBoxes(List<ShippingData> shippingData)
         {
-            OscElement msg = new OscElement("/boxes5", colour1, colour2, colour3, colour4, colour5);
-            writer.Send(msg);
+			int capacity = shippingData.Capacity;
+			OscElement boxesMSG;
+			if (capacity == 3)
+				boxesMSG = new OscElement("/boxes3", shippingData[0].sonochromaticColour,
+													 shippingData[1].sonochromaticColour,
+													 shippingData[2].sonochromaticColour);
+			else if (capacity == 5)
+				boxesMSG = new OscElement("/boxes5", shippingData[0].sonochromaticColour,
+													 shippingData[1].sonochromaticColour,
+													 shippingData[2].sonochromaticColour,
+													 shippingData[3].sonochromaticColour,
+													 shippingData[4].sonochromaticColour);
+			else
+				boxesMSG = new OscElement("/boxes7", shippingData[0].sonochromaticColour,
+													 shippingData[1].sonochromaticColour,
+													 shippingData[2].sonochromaticColour,
+													 shippingData[3].sonochromaticColour,
+													 shippingData[4].sonochromaticColour,
+													 shippingData[5].sonochromaticColour,
+													 shippingData[6].sonochromaticColour);
+			writer.Send(boxesMSG);
         }
     }
 

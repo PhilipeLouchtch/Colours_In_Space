@@ -36,10 +36,10 @@ namespace ColoursInSpace
 
         private void WindowLoaded(object sender, RoutedEventArgs e)
         {
-            //osc = new OSC(IPAddress.Loopback.ToString());
-            osc = new OSC("132.229.130.152");
+            osc = new OSC(IPAddress.Loopback.ToString());
+            //osc = new OSC("132.229.130.152");
 			RuntimeSettings settings = new RuntimeSettings();
-            coloursProcessor = new FrameProcessor(this.osc.SendMsg, this.osc.SendColourBoxes5, settings);
+            coloursProcessor = new FrameProcessor(this.osc.SendMsg, this.osc.SendBoxes, settings);
 			kinectLogic = new Kinect(this.coloursProcessor.ProcessPixelData);
             kinectThread = new Thread(new ThreadStart(this.kinectLogic.ConnectToSensor));
         }

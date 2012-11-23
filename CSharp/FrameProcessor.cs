@@ -36,9 +36,11 @@ namespace ColoursInSpace
 
         /// <summary>
         /// Delegates to the OSC send message methods
+		/// Msg:	Simple string message
+		/// Boxes:	List with data for sonification
         /// </summary>
-		private SendOscMsg          sendOSCMsg;
-        private SendOscColourBoxes5 sendOSCBoxes5;
+		private SendOSCMsg          sendOSCMsg;
+		private SendOSCBoxes		sendOSCBoxes;
 
         /// <summary>
         /// BackgroundWorker for handling the processing of a colour frame ready event from the KinectLogic
@@ -54,11 +56,11 @@ namespace ColoursInSpace
 		/// Initializes the FrameProcessor class
 		/// </summary>
         /// <param name="amntTargetBoxes">Amount of colours to be stored (the amount of targets set)</param>
-		public FrameProcessor(SendOscMsg sendOscMsg, SendOscColourBoxes5 sendOSCColourBoxes5, RuntimeSettings settings)
+		public FrameProcessor(SendOSCMsg sendOscMsg, SendOSCBoxes sendOSCBoxes, RuntimeSettings settings)
 		{
 			colours = new Colours();
 			this.sendOSCMsg = sendOscMsg;
-            this.sendOSCBoxes5 = sendOSCColourBoxes5;
+			this.sendOSCBoxes = sendOSCBoxes;
             pixelBGRAData = new byte[(640 * 480 * 4)];  //Hardcoded size? Not very nice, yes
 
 			this.settings = settings;
@@ -78,7 +80,10 @@ namespace ColoursInSpace
 
 			int dimension	= targetBoxes.boxes[0].dimension;
 			int upperY		= 240 - (dimension / 2);
+			// Amount of pixels in the targetbox
 			int pixels		= (int)Math.Pow(dimension, 2);
+
+			List<ShippingData> dataToTransmit = new List<ShippingData>(targetBoxes.boxes.Capacity);
 
 			for (int i = 0; i < targetBoxes.boxes.Count; i++)
 			{
@@ -92,6 +97,7 @@ namespace ColoursInSpace
 
 				int leftX = targetBoxes.boxes[i].x;
 
+				// Calculate the average (literally) colour in the target box
 				for (int x = leftX; x < dimension + leftX; x++)
 				{
 					for (int y = upperY; y < upperY + dimension; y++)
@@ -101,42 +107,20 @@ namespace ColoursInSpace
 						blue += colours.pixels[x, y].blue;
 					}
 				}
+
+				// Get the Hue, Saturation and Light from RGB
 				Utility.RGB2HSL((int)(red / pixels), (int)(green / pixels), (int)blue / pixels, out hue, out saturation, out light);
 
+				// Convert hue from normalized to HSL 360 degree hue
                 hue = hue * 360;
 
-                //TODO: Black and white check
-                //TODO: Place in utility function
-                ColourTypes colour;
-                if (hue < 20)
-                    colour = ColourTypes.Red;
-                else if (hue < 45)
-                    colour = ColourTypes.Orange;
-                else if (hue < 73)
-                    colour = ColourTypes.Yellow;
-                else if (hue < 97)
-                    colour = ColourTypes.Chartreuse;
-                else if (hue < 124)
-                    colour = ColourTypes.Green;
-                else if (hue < 162)
-                    colour = ColourTypes.Spring;
-                else if (hue < 195)
-                    colour = ColourTypes.Cyan;
-                else if (hue < 217)
-                    colour = ColourTypes.Azure;
-                else if (hue < 235)
-                    colour = ColourTypes.Blue;
-                else if (hue < 279)
-                    colour = ColourTypes.Violet;
-                else if (hue < 315)
-                    colour = ColourTypes.Magenta;
-                else
-                    colour = ColourTypes.Orange;
+				// Get the associated sonochromatic colour from the hue
+				SonochromaticColourType colour = Utility.HueToSonochromatic((int)hue);
 
-                targetBoxes.boxes[i].colour = colour;
+				dataToTransmit.Add(new ShippingData(colour));
 			}
-            //hardcoded 5 right now
-            sendOSCBoxes5((int)targetBoxes.boxes[0].colour, (int)targetBoxes.boxes[1].colour, (int)targetBoxes.boxes[2].colour, (int)targetBoxes.boxes[3].colour, (int)targetBoxes.boxes[4].colour);
+            //hardcoded to 5 right now
+			sendOSCBoxes(dataToTransmit);
 		}
 
 		private void ProcessDepthData(object depthPixels, DoWorkEventArgs e)
@@ -175,9 +159,6 @@ namespace ColoursInSpace
             bool   zoom   = settings.zoom;
             ushort boxes  = settings.amntTargetBoxes;
             TargetBox	targetBox = new TargetBox();
-
-            // Padding between the targetBoxes, there are n - 1 paddings needed
-            //int padding = 100 * (1 / (boxes - 1));
 
 			// Initialize the targetBoxes collection
 			targetBoxes = new TargetBoxes(boxes);
