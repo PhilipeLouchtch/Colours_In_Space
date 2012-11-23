@@ -1,22 +1,8 @@
 ////////////////HARBISSONS SONOCHROMATIC SCALE IN 2D//////////////////////// 
-
-//List of colours
-//0. rose
-//1. magenta
-//2. violet
-//3. blue
-//4. azure
-//5. cyan
-//6. spring
-//7. green
-//8. Charteuse
-//9. yellow
-//10. orange
-//11. red
 (
 //OSC receive: 
 n = NetAddr("127.0.0.1", 57120);
-o = OSCresponder(nil, '/chat', { |t, r, msg| ("time:" + t).postln; msg.postln;~msg = msg; ~numSynths = msg[1] }).add;
+o = OSCresponder(nil, '/boxes5', { |t, r, msg| ("time:" + t).postln; msg.postln;~msg = msg; ~numSynths = msg[1] }).add;
 
 ~msg = -1;
 ~frequencies = Array.with(174.61, 185.0, 196.0, 207.65, 220.0, 233.08, 246.94, 261.63, 277.18, 293.66, 311.13, 329.63); //array to store the frequencies of the chromatic scale from F3 to E4. 
@@ -29,24 +15,35 @@ SynthDef.new('sonochromatic', {
 	 pan = Pan2.ar(sin, pos);
 	 Out.ar(0, pan);
  }).add;
+ 
+//gives lighter colours brighter timbre
+ SynthDef.new('formant', {
+	 |freq, pos, vol, formant| 
+	 var sin, pan;
+	 sin = Formant.ar(fundfreq:freq, formfreq:formant, mul:vol);
+	 pan = Pan2.ar(sin, pos);
+	 Out.ar(0, pan);
+ }).add;
 
-~synths = Array.fill(5, {Synth.new(\sonochromatic)});
+~synths = Array.fill(5, {Synth.new(\formant)});
+)
 
+(
 //in the code below the synth should receive messages from OSC and send them to the synth
 Routine{	
 	inf.do({
 		if(~msg != -1, {
 			~synths.collect({ arg item, i;
-			~convert = ~frequencies.at(~msg.at(i+2));
-			item.set(\freq, ~convert, \pos, ~positions[i], \vol, (1/5));
+			~convert = ~frequencies.at(~msg.at(i+1));
+			~formant = 2.1**~msg.at(i+1) + 200;
+			item.set(\freq, ~convert, \pos, ~positions[i],\vol, 0.2, \formant, ~formant);
 			})
 		});
 		0.03.wait;
 	});
 }.play;
-);
+)
 
 //OSC send test:
 m = NetAddr("127.0.0.1", 57120);
-m.sendMsg('/chat', 7, 11, 3, 9, 2, 2);
-
+m.sendMsg('/boxes5', 5, 7, 6, 2, 0, 2);
