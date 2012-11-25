@@ -112,8 +112,30 @@ namespace ColoursInSpace
 
     public delegate void SettingsChanged(Object sender);
 
-    class RuntimeSettings
+    public sealed class RuntimeSettings
     {
+		// Singleton pattern implementation
+		private static volatile RuntimeSettings instance;
+		private static object syncRoot = new Object();
+
+		public static RuntimeSettings Instance
+		{
+			get
+			{
+				if (instance == null)
+				{
+					lock (syncRoot)
+					{
+						if (instance == null)
+							instance = new RuntimeSettings();
+					}
+				}
+
+				return instance;
+			}
+		}
+		// End singleton pattern
+
         /// <summary>
         /// Enables the distance translation engine
         /// </summary>
@@ -138,7 +160,7 @@ namespace ColoursInSpace
 				{ 
 					_zoom = value;
 					if (settingsChanged != null)
-						this.settingsChanged(this); 
+						settingsChanged(this); 
 				} 
 			} 
 		}
@@ -172,7 +194,7 @@ namespace ColoursInSpace
 			} 
         }
 
-        public event SettingsChanged settingsChanged;
+        public static event SettingsChanged settingsChanged;
 
         /// <summary>
         /// Constructor with default settings

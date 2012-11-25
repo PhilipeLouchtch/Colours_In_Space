@@ -65,7 +65,7 @@ namespace ColoursInSpace
 
 			this.settings = settings;
 			processTargetBoxChanges(settings); //Run it the first time
-			settings.settingsChanged += this.processTargetBoxChanges;
+			RuntimeSettings.settingsChanged += this.processTargetBoxChanges;
 
             //Setting up the backgroundProcesses
 			backgroundProcessColour = new BackgroundWorker();
@@ -187,8 +187,12 @@ namespace ColoursInSpace
 			targetBoxes.boxes[mid].middle.x = 320; // middle box is always @ 320px
 			targetBoxes.boxes[mid].x = 320 - boxRadius;
 
+			if (boxes == 3)
+			{
+				//nop
+			}
 			// I've given up on calculating this dynamically, so hardcoded will do
-			if (boxes == 5)
+			else if (boxes == 5)
 			{
 				// Left of the middle box
 				targetBoxes.boxes[1].middle.x = (320 - targetBoxes.boxes[0].middle.x) / 2 + boxRadius;
@@ -220,8 +224,8 @@ namespace ColoursInSpace
 			}
 			else
 				throw new NotImplementedException("More target boxes than 7 is not implemented");
-
         }
+		
 		
 	}
 }
