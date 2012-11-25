@@ -201,7 +201,22 @@ namespace ColoursInSpace
 			else if (boxes == 7)
 			{
 				//TODO
-				throw new NotImplementedException("7 TargetBoxes is yet to be implemented");
+				//throw new NotImplementedException("7 TargetBoxes is yet to be implemented");
+				
+				int widthRemaining = targetBoxes.boxes[mid].x - boxWidth; // Space remaining between the first and the middle box
+				int padding = (widthRemaining - boxWidth * 2) / 3;			  // Empty space between the boxes
+
+				// Left of the middle box
+				targetBoxes.boxes[1].x = boxWidth + padding;
+				targetBoxes.boxes[1].middle.x = targetBoxes.boxes[1].x + boxRadius;
+				targetBoxes.boxes[2].x = targetBoxes.boxes[1].middle.x + boxRadius + padding;
+				targetBoxes.boxes[2].middle.x = targetBoxes.boxes[2].x + boxRadius;
+
+				// Right of the middle box
+				targetBoxes.boxes[4].x = targetBoxes.boxes[mid].middle.x + boxRadius + padding;
+				targetBoxes.boxes[4].middle.x = targetBoxes.boxes[4].x + boxRadius;
+				targetBoxes.boxes[5].x = targetBoxes.boxes[4].middle.x + boxRadius + padding;
+				targetBoxes.boxes[5].middle.x = targetBoxes.boxes[5].x + boxRadius;
 			}
 			else
 				throw new NotImplementedException("More target boxes than 7 is not implemented");

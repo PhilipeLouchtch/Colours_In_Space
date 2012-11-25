@@ -184,7 +184,7 @@ namespace ColoursInSpace
 			zoom = false;
             //filter; nothing yet....
             volume = 50;
-            amntTargetBoxes = 5;
+            amntTargetBoxes = 7;
         }
     }
 
@@ -200,7 +200,7 @@ namespace ColoursInSpace
     class TargetBox
     {
         /// <summary>
-        /// The width of the box
+        /// The x coordinate of the left edge of the box
         /// </summary>
         public int x { get; set; }
 
