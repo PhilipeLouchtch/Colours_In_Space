@@ -26,17 +26,49 @@ namespace ColoursInSpace
 
 		private ResourceDictionary previewImages;
 
-        private RuntimeSettings settings;
+		private RuntimeSettings settings;
 
 		public InitConfigWindow()
 		{
 			previewImages = new ResourceDictionary();
 			previewImages.Source = new Uri("/Resources/PreviewImagesDictionary.xaml", UriKind.Relative);
-            settings = new RuntimeSettings();
+			settings = new RuntimeSettings();
 			InitializeComponent();
-			this.PreviewImagebox.Source = (previewImages["3NoZoom"] as System.Windows.Controls.Image).Source;
 		}
 
-		//TODO: Events onZoom and onSliderChange to change the preview picture!
+		private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+		{
+			ushort value = (ushort)((Slider)sender).Value;
+
+			bool zoom = (bool)this.Zoom.IsChecked; 
+
+			settings.amntTargetBoxes = (ushort)value;
+			ChangePreviewImage(value, zoom);
+		}
+
+		private void ChangePreviewImage(int numBoxes, bool zoom)
+		{
+			string zoomMode = zoom ? "Zoom" : "NoZoom";
+			this.PreviewImagebox.Source = (previewImages[numBoxes.ToString() + zoomMode] as System.Windows.Controls.Image).Source;
+		}
+
+		private void Zoom_Checked(object sender, RoutedEventArgs e)
+		{
+			int boxes = (int)this.boxSelector.Value;
+			bool zoom = (bool)((CheckBox)sender).IsChecked;
+			settings.zoom = zoom;
+		
+			ChangePreviewImage(boxes, zoom);
+		}
+
+		private void WindowLoaded(object sender, RoutedEventArgs e)
+		{
+			// Set everything up to the way settings are initialized
+			string boxes = settings.amntTargetBoxes.ToString();
+			string zoom = settings.zoom ? "Zoom" : "NoZoom";
+			this.PreviewImagebox.Source = (previewImages[boxes + zoom] as System.Windows.Controls.Image).Source;
+			this.boxSelector.Value = settings.amntTargetBoxes;
+			this.boxSelector.ValueChanged += Slider_ValueChanged;
+		}
 	}
 }
