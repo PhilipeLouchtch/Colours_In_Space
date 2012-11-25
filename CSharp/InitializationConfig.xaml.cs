@@ -34,11 +34,11 @@ namespace ColoursInSpace
 		private System.Threading.Thread kinectThread;
 
 		private ResourceDictionary previewImages;
-
 		private RuntimeSettings settings;
 
 		public InitConfigWindow()
 		{
+			Thread.Sleep(500);
 			previewImages = new ResourceDictionary();
 			previewImages.Source = new Uri("/Resources/PreviewImagesDictionary.xaml", UriKind.Relative);
 			settings = new RuntimeSettings();
