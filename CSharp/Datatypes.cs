@@ -181,7 +181,6 @@ namespace ColoursInSpace
         {
             distance = true;
             colour = true;
-			zoom = new Boolean();
 			zoom = false;
             //filter; nothing yet....
             volume = 50;
@@ -210,7 +209,7 @@ namespace ColoursInSpace
 		/// <summary>
 		/// Dimension of the box
 		/// </summary>
-		public int dimension { get; set; }
+		public int radius { get; set; }
 
         public Point middle;
 

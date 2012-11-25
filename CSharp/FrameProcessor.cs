@@ -78,7 +78,7 @@ namespace ColoursInSpace
 		{
 			colours.ProcessPixelBgraData((byte[])e.Argument, sender);
 
-			int dimension	= targetBoxes.boxes[0].dimension;
+			int dimension	= targetBoxes.boxes[0].radius;
 			int upperY		= 240 - (dimension / 2);
 			// Amount of pixels in the targetbox
 			int pixels		= (int)Math.Pow(dimension, 2);
@@ -161,23 +161,51 @@ namespace ColoursInSpace
             TargetBox	targetBox = new TargetBox();
 
 			// Initialize the targetBoxes collection
-			targetBoxes = new TargetBoxes(boxes);
-
-			// The vertical middle
-			
+			targetBoxes = new TargetBoxes(boxes);				
 			
 			int boxStep = 640 / (boxes + 1);
-			int boxDimension = (zoom ? 440 : 540) / (boxes + 1) / 2;
+			int boxWidth = (zoom ? 380 : 540) / boxes;
+			int boxRadius = boxWidth / 2;
 
+			// Prepate the boxes first to make things easier
 			for (int i = 0; i < boxes; i++)
 			{
 				targetBox = new TargetBox();
 				targetBox.middle.y = 480 / 2;
-				targetBox.middle.x =  boxStep * (i + 1);
-				targetBox.x = targetBox.middle.x - boxDimension;
-				targetBox.dimension = boxDimension * 2;
+				targetBox.radius = boxRadius;
 				targetBoxes.boxes.Add(targetBox);
+			}		
+
+			// First the outer left/right boxes are placed at their respective edge
+			targetBoxes.boxes[0].x = 0;
+			targetBoxes.boxes[0].middle.x = boxRadius;
+			targetBoxes.boxes[boxes - 1].x = 640 - boxWidth;
+			targetBoxes.boxes[boxes - 1].middle.x = 640 - boxRadius;
+
+			// The middle box
+			int mid = boxes / 2; // will get rounded down, which is what we want due to 0 based
+			targetBoxes.boxes[mid].middle.x = 320; // middle box is always @ 320px
+			targetBoxes.boxes[mid].x = 320 - boxRadius;
+
+			// I've given up on calculating this dynamically, so hardcoded will do
+			if (boxes == 5)
+			{
+				// Left of the middle box
+				targetBoxes.boxes[1].middle.x = (320 - targetBoxes.boxes[0].middle.x) / 2 + boxRadius;
+				targetBoxes.boxes[1].x = targetBoxes.boxes[1].middle.x - boxRadius;
+
+				// Right of the middle box
+				targetBoxes.boxes[3].middle.x = 320 + (targetBoxes.boxes[4].middle.x - 320) / 2;
+				targetBoxes.boxes[3].x = targetBoxes.boxes[3].middle.x - boxRadius;
 			}
+			else if (boxes == 7)
+			{
+				//TODO
+				throw new NotImplementedException("7 TargetBoxes is yet to be implemented");
+			}
+			else
+				throw new NotImplementedException("More target boxes than 7 is not implemented");
+
         }
 		
 	}
