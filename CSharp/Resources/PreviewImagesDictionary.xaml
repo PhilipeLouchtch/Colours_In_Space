@@ -3,6 +3,8 @@
     <Image Source="/Resources/PreviewPicture3TargetsNoZoom.jpg" x:Key="3NoZoom" />
     <Image Source="/Resources/PreviewPicture3TargetsZoom.jpg" x:Key="3Zoom" />
     <Image Source="/Resources/PreviewPicture5TargetsNoZoom.jpg" x:Key="5NoZoom" />
-    <Image Source="/Resources/PreviewPicture5TargetsZoom.jpg" x:Key="5Zoom" />  
+    <Image Source="/Resources/PreviewPicture5TargetsZoom.jpg" x:Key="5Zoom" />
+    <Image Source="/Resources/PreviewPicture7TargetsNoZoom.jpg" x:Key="7NoZoom" />
+    <Image Source="/Resources/PreviewPicture7TargetsZoom.jpg" x:Key="7Zoom" />
     
 </ResourceDictionary>
