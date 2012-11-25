@@ -161,6 +161,16 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\PreviewPicture3TargetsNoZoom.jpg" />
+    <Resource Include="Resources\PreviewPicture3TargetsZoom.jpg" />
+    <Resource Include="Resources\PreviewPicture5TargetsNoZoom.jpg" />
+    <Resource Include="Resources\PreviewPicture5TargetsZoom.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\PreviewPicture7TargetsNoZoom.jpg" />
+    <Resource Include="Resources\PreviewPicture7TargetsZoom.jpg" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
