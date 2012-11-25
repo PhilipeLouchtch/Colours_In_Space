@@ -84,7 +84,6 @@ namespace ColoursInSpace
 		public static SonochromaticColourType HueToSonochromatic(int hue)
 		{
 			//TODO: Black and white check
-			//TODO: Place in utility function
 			SonochromaticColourType colour;
 			if (hue < 20)
 				colour = SonochromaticColourType.Red;
