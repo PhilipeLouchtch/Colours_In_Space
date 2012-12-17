@@ -111,6 +111,7 @@ namespace ColoursInSpace
 				if (colourFrame != null)
 				{
 					colourFrame.CopyPixelDataTo(colourPixels);
+                    ProcessFrameData(colourPixels, depthPixels);
 				}
 			}
 		}
@@ -129,8 +130,7 @@ namespace ColoursInSpace
 				{
 					depthFrame.CopyPixelDataTo(depthPixels);
 				}
-			}
-			ProcessFrameData(colourPixels, depthPixels);
+			}			
 		}
 
     }

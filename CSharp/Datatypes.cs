@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -57,27 +56,31 @@ namespace ColoursInSpace
         {
 			ParallelOptions parallelOptions = new ParallelOptions();
 
-			//TODO: Tweak the #iterations when done
-			//TODO: Test for correctness
+			// TODO: Tweak the #iterations when done
+			// TODO: Test for correctness
 			int iterations = 2;
 			parallelOptions.MaxDegreeOfParallelism = iterations;
 			int length = pixelData.Length / iterations;
-			//Convert the pixelData to colours using # of iterations threads
+			// Convert the pixelData to colours using # of iterations threads
 			Parallel.For(0, iterations, parallelOptions, (iterationNo) =>
 			{
-				int from = iterationNo * length;
-				int to	 = length * (iterationNo + 1);
-				int x	 = (from >> 2) % 640;
-				int y	 = (from >> 2) / 640;
+                // Going into performance critical section
+                unsafe
+                {
+                    int from = iterationNo * length;
+                    int to = length * (iterationNo + 1);
+                    int x = (from >> 2) % 640;
+                    int y = (from >> 2) / 640;
 
-				for (int i = from; i < to; i += 4)
-				{			
-					pixels[x, y].blue = pixelData[i];
-					pixels[x, y].green = pixelData[i + 1]; 
-					pixels[x, y].red = pixelData[i + 2];
-				
-					if (x < 639) x++; else { x = 0; y++; }  //more efficient than a modulo and a div operation
-				}
+                    for (int i = from; i < to; i += 4)
+                    {
+                        pixels[x, y].blue = pixelData[i];
+                        pixels[x, y].green = pixelData[i + 1];
+                        pixels[x, y].red = pixelData[i + 2];
+
+                        if (x < 639) x++; else { x = 0; y++; }  //more efficient than a modulo and a div operation
+                    }
+                }
 			});
 
 			return;
@@ -270,4 +273,24 @@ namespace ColoursInSpace
 			sonochromaticColour = (int)colourType;
 		}
 	}
+
+    public class ShippingDataSort : ShippingData
+    {
+        public static int compare(ShippingDataSort x, ShippingDataSort y)
+        {
+            if (x.boxNr < y.boxNr)
+                return 1;
+            if (x.boxNr > y.boxNr)
+                return -1;
+            else
+                return 0;
+        }
+
+        public ShippingDataSort(SonochromaticColourType colourType, int boxNr) : base(colourType)
+        {
+            this.boxNr = boxNr;
+        }
+
+        public int boxNr;
+    }
 }

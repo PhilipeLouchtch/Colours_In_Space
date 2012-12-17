@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -112,5 +112,98 @@ namespace ColoursInSpace
 			return colour;
 		}
 	}
+
+    
+    static class DominantColourAlgorithms
+    {
+        // Heavily modified http://chironexsoftware.com/blog/?p=60
+        // HORRIBLE PERFORMANCE
+        unsafe public static double CalculateDominantColorByEuclidianDistance(Colours colours, int leftX, int dimension, int upperY, int pixels)
+        {
+            List<Tuple<Colour, double>> colourDist = new List<Tuple<Colour, double>>();
+
+            UInt64 pixelCount = 0;
+
+            for (int y = upperY; y < upperY + dimension; y += 4)
+            {
+                for (int x = leftX; x < dimension + leftX; x += 4)
+                {                    
+                    pixelCount++;
+
+                    Colour c1 = colours.pixels[x, y];
+                    double dist = 0;
+
+                    for (int y2 = upperY; y2 < upperY + dimension; y2 += 4)
+                    {
+                        for (int x2 = leftX; x2 < dimension + leftX; x2 += 4)
+                        {
+                            Colour c2 = colours.pixels[x2, y2];
+
+                            dist += Math.Sqrt(Math.Pow(c2.red - c1.red, 2) +
+                                                Math.Pow(c2.green - c1.green, 2) +
+                                                Math.Pow(c2.blue - c1.blue, 2));
+                        }
+                    }
+
+                    colourDist.Add(new Tuple<Colour, double>(c1, dist));
+                }
+            }
+            
+            //take weighted average of top 2% of colors         
+            var clrs = (from entry in colourDist
+                        orderby entry.Item2 ascending
+                        select new { colour = entry.Item1, Dist = 1.0 / Math.Max(1, entry.Item2) }).ToList();
+
+            double sumDist = clrs.Sum(x => x.Dist);
+            Colour result = new Colour((byte)(clrs.Sum(x => x.colour.red    * x.Dist) / sumDist),
+                                       (byte)(clrs.Sum(x => x.colour.green  * x.Dist) / sumDist),
+                                       (byte)(clrs.Sum(x => x.colour.blue   * x.Dist) / sumDist));
+
+            double hue = 0;
+            double saturation = 0;
+            double light = 0;
+            Utility.RGB2HSL((int)(clrs.Sum(x => x.colour.red * x.Dist) / sumDist),
+                            (int)(clrs.Sum(x => x.colour.green * x.Dist) / sumDist),
+                            (int)(clrs.Sum(x => x.colour.blue * x.Dist) / sumDist),
+                            out hue,
+                            out saturation,
+                            out light);
+
+            // Convert hue from normalized to HSL 360 degree hue
+            hue = hue * 360;
+            return hue;
+        }
+
+        unsafe public static double CalculateAverageColourByAveraging(Colours colours, int leftX, int dimension, int upperY, int pixels)
+        {
+            long red = 0;
+            long green = 0;
+            long blue = 0;
+
+            double hue = 0;
+            double saturation = 0;
+            double light = 0;
+
+            // Calculate the average (literally) colour in the target box
+            for (int x = leftX; x < dimension + leftX; x += 4)
+            {
+                for (int y = upperY; y < upperY + dimension; y += 4)
+                {
+                    red += colours.pixels[x, y].red;
+                    green += colours.pixels[x, y].green;
+                    blue += colours.pixels[x, y].blue;
+                }
+            }
+
+            // Get the Hue, Saturation and Light from RGB
+            Utility.RGB2HSL((int)(red / pixels), (int)(green / pixels), (int)blue / pixels, out hue, out saturation, out light);
+
+            // Convert hue from normalized to HSL 360 degree hue
+            hue = hue * 360;
+            return hue;
+        }
+
+    }
+
 
 }

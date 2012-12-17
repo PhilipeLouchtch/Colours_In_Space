@@ -5,7 +5,7 @@ using Ventuz.OSC;
 namespace ColoursInSpace
 {
 	public delegate void SendOSCMsg(string message);
-    public delegate void SendOSCBoxes(List<ShippingData> shippingData);
+    public delegate void SendOSCBoxes(List<ShippingDataSort> shippingData);
 
     class OSC : IDisposable
     {
@@ -46,7 +46,7 @@ namespace ColoursInSpace
                 writer.Send(msg);
         }
 
-        public void SendBoxes(List<ShippingData> shippingData)
+        public void SendBoxes(List<ShippingDataSort> shippingData)
         {
 			int capacity = shippingData.Capacity;
 			OscElement boxesMSG;
