@@ -158,11 +158,14 @@ namespace ColoursInSpace
 			set 
 			{ 
 				if (this._zoom != value) 
-				{ 
+				{
+                    while (mutexDominantColourAlgoRunning) ; // wait on the lock
+                    mutexValueBeingChanged = true;           // lock
 					_zoom = value;
 					if (settingsChanged != null)
-						settingsChanged(this); 
-				} 
+						settingsChanged(this);
+                    mutexValueBeingChanged = false;
+				}
 			} 
 		}
 
@@ -188,14 +191,18 @@ namespace ColoursInSpace
 			get { return this._amntTargetBoxes; }
 			set 
 			{
-                while (mutexDominantColourAlgoRunning) ; // wait on the lock
-                if (this._amntTargetBoxes != value && value >= 3 && value <= 7) 
-				{ 
-					_amntTargetBoxes = value;
-					if (settingsChanged != null)
-						settingsChanged(this); 
-				}
-                mutexValueBeingChanged = false;
+                if (this._amntTargetBoxes != value)
+                {
+                    while (mutexDominantColourAlgoRunning) ; // wait on the lock
+                    mutexValueBeingChanged = true;           // lock
+                    if (this._amntTargetBoxes != value && value >= 3 && value <= 7)
+                    {
+                        _amntTargetBoxes = value;
+                        if (settingsChanged != null)
+                            settingsChanged(this);
+                    }
+                    mutexValueBeingChanged = false;
+                }
 			} 
         }
 

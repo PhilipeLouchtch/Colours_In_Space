@@ -69,50 +69,61 @@ namespace ColoursInSpace
         {
             if (e.Result.Confidence > 0.6f)
             {
-                var result = e.Result;
+                var result = e.Result.Text;
 
-                if (result.Text.Contains("Filter"))
+                if (result.Contains("Filter"))
                 {
-                    if (result.Text.Contains("Next"))
+                    if (result.Contains("Next"))
                     {
                         throw new NotImplementedException("Filters not yet implemented");
                     }
                 }
-                else if (result.Text.Contains("Volume"))
+                else if (result.Contains("Volume"))
                 {
-                    if (result.Text.Contains("Up"))
+                    if (result.Contains("Up"))
                     {
                         throw new NotImplementedException("Volume not yet implemented");
                     }
-                    else if (result.Text.Contains("Down"))
+                    else if (result.Contains("Down"))
                     {
                         throw new NotImplementedException("Volume not yet implemented");
                     }
                 }
-                else if (result.Text.Contains("Targets"))
+                else if (result.Contains("Targets"))
                 {
-                    if (result.Text.Contains("Up"))
+                    if (result.Contains("Up"))
                     {
                         settings.amntTargetBoxes += 2;
                     }
-                    else if (result.Text.Contains("Down"))
+                    else if (result.Contains("Down"))
                     {
                         settings.amntTargetBoxes -= 2;
                     }
                 }
-                else if (result.Text.Contains("Mode"))
+                else if (result.Contains("Mode"))
                 {
-                    if (result.Text.Contains("Sonar"))
+                    if (result.Contains("Sonar"))
                     {
                         throw new NotImplementedException("Mode switching not implemented");
                     }
-                    else if (result.Text.Contains("Color"))
+                    else if (result.Contains("Color"))
                     {
                         throw new NotImplementedException("Mode switching not implemented");
                     }
-                    else if (result.Text.Contains("Mixed"))
+                    else if (result.Contains("Mixed"))
                     {
                         throw new NotImplementedException("Mode switching not implemented");
+                    }
+                }
+                else if (result.Contains("Zoom"))
+                {
+                    if (result.Contains("On"))
+                    {
+                        settings.zoom = true;
+                    }
+                    else if (result.Contains("Off"))
+                    {
+                        settings.zoom = false;
                     }
                 }
                    
@@ -147,7 +158,8 @@ namespace ColoursInSpace
             Filter,
             Volume,
             Targets,
-            Mode            
+            Mode,
+            Zoom
         }
 
         private enum Command
@@ -157,7 +169,9 @@ namespace ColoursInSpace
             Next,
             Sonar,
             Colour,
-            Mixed
+            Mixed,
+            On,
+            Off
         }
 
         private Dictionary<string, Headers> CategoryMatchings = new Dictionary<string,Headers>
@@ -165,7 +179,8 @@ namespace ColoursInSpace
             { "Filter",  Headers.Filter },
             { "Volume",  Headers.Volume },
             { "Targets", Headers.Targets },
-            { "Mode",    Headers.Mode}
+            { "Mode",    Headers.Mode },
+            { "Zoom",    Headers.Zoom }
         };
 
         private Dictionary<string, Command> CommandMatchings = new Dictionary<string, Command>
@@ -175,7 +190,9 @@ namespace ColoursInSpace
             { "Next",   Command.Next },
             { "Sonar",  Command.Sonar },
             { "Color",  Command.Colour }, //enUS localization
-            { "Mixed",  Command.Mixed }
+            { "Mixed",  Command.Mixed },
+            { "Off",    Command.Off },
+            { "On",     Command.On }
         };
 
         #endregion

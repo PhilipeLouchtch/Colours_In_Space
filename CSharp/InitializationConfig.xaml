@@ -46,10 +46,10 @@
                 </Label>
                 <Label Content="Amount of target boxes:" HorizontalAlignment="Right" Margin="0,163,95,148" SnapsToDevicePixels="True" Width="145"/>
                 <CheckBox x:Name="Zoom" Content="Zoom" Margin="174,169,10,153" Checked="Zoom_Checked" Unchecked="Zoom_Checked" SnapsToDevicePixels="True"/>
-                <Slider x:Name="boxSelector" Margin="10,182,10,130" TickPlacement="BottomRight" TickFrequency="2" SmallChange="2" Cursor="Arrow" Maximum="7" Minimum="3" LargeChange="2" Value="3" Background="{x:Null}" IsSnapToTickEnabled="True" SnapsToDevicePixels="True"/>
+                <Slider x:Name="Targets" Margin="10,182,10,130" TickPlacement="BottomRight" TickFrequency="2" SmallChange="2" Cursor="Arrow" Maximum="7" Minimum="3" LargeChange="2" Value="3" Background="{x:Null}" IsSnapToTickEnabled="True" SnapsToDevicePixels="True"/>
             </Grid>
         </GroupBox>
-        <Slider Margin="274,31,10,306" Value="50" SmallChange="1" TickFrequency="5" LargeChange="25" Maximum="100" AutoToolTipPlacement="TopLeft" SnapsToDevicePixels="True"/>
+        <Slider x:Name="VolumeSlider"  Margin="274,31,10,306" Value="50" SmallChange="1" TickFrequency="5" LargeChange="25" Maximum="100" AutoToolTipPlacement="TopLeft" SnapsToDevicePixels="True"/>
         <Label x:Name="Vol_Label" Content="Volume" HorizontalAlignment="Left" Margin="269,10,0,0" VerticalAlignment="Top" Width="64" SnapsToDevicePixels="True"/>
         <ComboBox Margin="274,79,10,254" SnapsToDevicePixels="True"/>
         <Label x:Name="Filter_Label" Content="Filter" HorizontalAlignment="Left" Margin="269,54,0,0" VerticalAlignment="Top" Width="64" SnapsToDevicePixels="True"/>

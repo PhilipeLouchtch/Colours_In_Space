@@ -17,113 +17,108 @@ using System.Net;
 
 namespace ColoursInSpace
 {
-	/// <summary>
-	/// Interaction logic for Window1.xaml
-	/// </summary>
-	/// 
+    /// <summary>
+    /// Interaction logic for Window1.xaml
+    /// </summary>
+    /// 
 
 
-	public partial class InitConfigWindow : Window
-	{
+    public partial class InitConfigWindow : Window
+    {
 
-		private OSC osc;
-		private FrameProcessor coloursProcessor;
-		private Kinect kinectLogic;
+        private OSC osc;
+        private FrameProcessor coloursProcessor;
+        private Kinect kinectLogic;
 
-		//Thread where the KinectLogic start from
-		private System.Threading.Thread kinectThread;
+        //Thread where the KinectLogic start from
+        private System.Threading.Thread kinectThread;
 
-		private ResourceDictionary previewImages;
-		private RuntimeSettings settings;
+        private ResourceDictionary previewImages;
+        private RuntimeSettings settings;
 
-		public InitConfigWindow()
-		{
-			Thread.Sleep(500);
-			previewImages = new ResourceDictionary();
-			previewImages.Source = new Uri("/Resources/PreviewImagesDictionary.xaml", UriKind.Relative);
-			settings = new RuntimeSettings();
-			InitializeComponent();
-		}
+        public InitConfigWindow()
+        {
+            Thread.Sleep(500);
+            previewImages = new ResourceDictionary();
+            previewImages.Source = new Uri("/Resources/PreviewImagesDictionary.xaml", UriKind.Relative);
+            settings = new RuntimeSettings();
+            InitializeComponent();
+        }
 
-		private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-		{
-			ushort value = (ushort)((Slider)sender).Value;
+        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            ushort value = (ushort)((Slider)sender).Value;
 
-			bool zoom = (bool)this.Zoom.IsChecked; 
+            bool zoom = (bool)this.Zoom.IsChecked;
 
-			settings.amntTargetBoxes = (ushort)value;
-			ChangePreviewImage(value, zoom);
-		}
+            settings.amntTargetBoxes = (ushort)value;
+            ChangePreviewImage(value, zoom);
+        }
 
         private void ProcessSettingsChanges(object sender)
         {
-            try
+            
+            this.Dispatcher.Invoke((Action)(() =>
             {
-                this.Dispatcher.Invoke((Action)(() =>
-                {
-                    this.boxSelector.Value = ((RuntimeSettings)sender).amntTargetBoxes;
-                    this.Zoom.IsChecked = ((RuntimeSettings)sender).zoom;
-                }));
-            }
-            catch
-            {
-                // Don't even care
-            }
+                settings = (RuntimeSettings) sender;
+                this.Targets.Value = this.settings.amntTargetBoxes;
+                this.Zoom.IsChecked = this.settings.zoom;
+            }));
         }
 
-		public void ChangePreviewImage(int numBoxes, bool zoom)
-		{
-			string zoomMode = zoom ? "Zoom" : "NoZoom";
-			this.PreviewImagebox.Source = (previewImages[numBoxes.ToString() + zoomMode] as System.Windows.Controls.Image).Source;
-		}
+        public void ChangePreviewImage(int numBoxes, bool zoom)
+        {
+            string zoomMode = zoom ? "Zoom" : "NoZoom";
+            this.PreviewImagebox.Source = (previewImages[numBoxes.ToString() + zoomMode] as System.Windows.Controls.Image).Source;
+        }
 
-		private void Zoom_Checked(object sender, RoutedEventArgs e)
-		{
-			int boxes = (int)this.boxSelector.Value;
-			bool zoom = (bool)((CheckBox)sender).IsChecked;
-			settings.zoom = zoom;
-		
-			ChangePreviewImage(boxes, zoom);
-		}
+        private void Zoom_Checked(object sender, RoutedEventArgs e)
+        {
+            int boxes = (int)this.Targets.Value;
+            bool zoom = (bool)((CheckBox)sender).IsChecked;
+            settings.zoom = zoom;
 
-		private void WindowLoaded(object sender, RoutedEventArgs e)
-		{
-			osc = new OSC(IPAddress.Loopback.ToString());
-			RuntimeSettings settings = new RuntimeSettings();
-			coloursProcessor = new FrameProcessor(this.osc.SendMsg, this.osc.SendBoxes, settings);
-			kinectLogic = new Kinect(this.coloursProcessor.ProcessPixelData);
-			kinectThread = new Thread(new ThreadStart(this.kinectLogic.ConnectToSensor));
+            ChangePreviewImage(boxes, zoom);
+        }
+
+        private void WindowLoaded(object sender, RoutedEventArgs e)
+        {
+            osc = new OSC(IPAddress.Loopback.ToString());
+            RuntimeSettings settings = new RuntimeSettings();
+            coloursProcessor = new FrameProcessor(this.osc.SendMsg, this.osc.SendBoxes, settings);
+            kinectLogic = new Kinect(this.coloursProcessor.ProcessPixelData);
+            kinectThread = new Thread(new ThreadStart(this.kinectLogic.ConnectToSensor));
 
 
-			// Set everything up to the way settings are initialized
-			string boxes = settings.amntTargetBoxes.ToString();
-			string zoom = settings.zoom ? "Zoom" : "NoZoom";
-			this.PreviewImagebox.Source = (previewImages[boxes + zoom] as System.Windows.Controls.Image).Source;
-			this.boxSelector.Value = settings.amntTargetBoxes;
-			this.boxSelector.ValueChanged += Slider_ValueChanged;
+            // Set everything up to the way settings are initialized
+            string boxes = settings.amntTargetBoxes.ToString();
+            string zoom = settings.zoom ? "Zoom" : "NoZoom";
+            this.PreviewImagebox.Source = (previewImages[boxes + zoom] as System.Windows.Controls.Image).Source;
+            this.Targets.Value = settings.amntTargetBoxes;
+            this.Targets.ValueChanged += Slider_ValueChanged;
 
             RuntimeSettings.settingsChanged += this.ProcessSettingsChanges;
-		}
+        }
 
-		private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
-		{
-			osc.Dispose();
-		}
+        private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            osc.Dispose();
+        }
 
-		private void startToggle_Click(object sender, RoutedEventArgs e)
-		{
-			//Very hacky...
-			if (((Button)sender).Content != "Kill it")
-			{
-				//We have lift off
-				kinectThread.Start();
-				((Button)sender).Content = "Kill it";
-			}
-			else
-			{
-				base.Close();
-				this.Close();
-			}
-		}
-	}
+        private void startToggle_Click(object sender, RoutedEventArgs e)
+        {
+            //Very hacky...
+            if (((Button)sender).Content != "Kill it")
+            {
+                //We have lift off
+                kinectThread.Start();
+                ((Button)sender).Content = "Kill it";
+            }
+            else
+            {
+                base.Close();
+                this.Close();
+            }
+        }
+    }
 }
