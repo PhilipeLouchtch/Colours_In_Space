@@ -90,6 +90,8 @@ namespace ColoursInSpace
 
             ParallelOptions options = new ParallelOptions();
             options.MaxDegreeOfParallelism = 3;
+            while (RuntimeSettings.mutexValueBeingChanged) ; // wait for changes to be processed there
+            RuntimeSettings.mutexDominantColourAlgoRunning = true;
             Parallel.For(0, targetBoxes.boxes.Count, options, (i) =>
             {
                 double hue = DominantColourAlgorithms.CalculateAverageColourByAveraging(colours,
@@ -108,6 +110,7 @@ namespace ColoursInSpace
                 SonochromaticColourType colour = Utility.HueToSonochromatic((int)hue);
                 bag.Add(new ShippingDataSort(colour, i));
             });
+            RuntimeSettings.mutexDominantColourAlgoRunning = false;
 
             int bagSize = bag.Count;
             for (int i = 0; i < bagSize; i++)

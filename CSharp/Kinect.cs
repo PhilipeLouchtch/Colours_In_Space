@@ -34,6 +34,8 @@ namespace ColoursInSpace
 		///// </summary>
 		private short[] depthPixels;
 
+        private VoiceRecognition voiceRecognition;
+
         /// <summary>
         /// Execute startup tasks
         /// </summary>
@@ -82,6 +84,9 @@ namespace ColoursInSpace
                 {
                     this.sensor = null;
                 }
+
+                this.voiceRecognition = new VoiceRecognition();
+                this.voiceRecognition.IntializeRecognition(ref this.sensor);
             }
 		}
 

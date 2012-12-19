@@ -55,7 +55,23 @@ namespace ColoursInSpace
 			ChangePreviewImage(value, zoom);
 		}
 
-		private void ChangePreviewImage(int numBoxes, bool zoom)
+        private void ProcessSettingsChanges(object sender)
+        {
+            try
+            {
+                this.Dispatcher.Invoke((Action)(() =>
+                {
+                    this.boxSelector.Value = ((RuntimeSettings)sender).amntTargetBoxes;
+                    this.Zoom.IsChecked = ((RuntimeSettings)sender).zoom;
+                }));
+            }
+            catch
+            {
+                // Don't even care
+            }
+        }
+
+		public void ChangePreviewImage(int numBoxes, bool zoom)
 		{
 			string zoomMode = zoom ? "Zoom" : "NoZoom";
 			this.PreviewImagebox.Source = (previewImages[numBoxes.ToString() + zoomMode] as System.Windows.Controls.Image).Source;
@@ -73,7 +89,6 @@ namespace ColoursInSpace
 		private void WindowLoaded(object sender, RoutedEventArgs e)
 		{
 			osc = new OSC(IPAddress.Loopback.ToString());
-			//osc = new OSC("132.229.130.152");
 			RuntimeSettings settings = new RuntimeSettings();
 			coloursProcessor = new FrameProcessor(this.osc.SendMsg, this.osc.SendBoxes, settings);
 			kinectLogic = new Kinect(this.coloursProcessor.ProcessPixelData);
@@ -86,6 +101,8 @@ namespace ColoursInSpace
 			this.PreviewImagebox.Source = (previewImages[boxes + zoom] as System.Windows.Controls.Image).Source;
 			this.boxSelector.Value = settings.amntTargetBoxes;
 			this.boxSelector.ValueChanged += Slider_ValueChanged;
+
+            RuntimeSettings.settingsChanged += this.ProcessSettingsChanges;
 		}
 
 		private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)

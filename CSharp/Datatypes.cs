@@ -87,10 +87,8 @@ namespace ColoursInSpace
         }
     }
 
-    //TODO: Clamp colours?
 	/// <summary>
 	/// Colours container, stores colours in a list
-	/// TODO: Clamp colours on addition
 	/// </summary>
     class TargetColours
     {
@@ -117,8 +115,8 @@ namespace ColoursInSpace
 
     public sealed class RuntimeSettings
     {
-		// Singleton pattern implementation
-		private static volatile RuntimeSettings instance;
+        #region Concurrency-safe Singleton pattern
+        private static volatile RuntimeSettings instance;
 		private static object syncRoot = new Object();
 
 		public static RuntimeSettings Instance
@@ -137,7 +135,7 @@ namespace ColoursInSpace
 				return instance;
 			}
 		}
-		// End singleton pattern
+        #endregion
 
         /// <summary>
         /// Enables the distance translation engine
@@ -177,6 +175,8 @@ namespace ColoursInSpace
         /// </summary>
         public ushort volume { get; set; }
 
+        static public bool mutexDominantColourAlgoRunning;
+        static public bool mutexValueBeingChanged { get; private set; }
 
         /// <summary>
         /// Amout of TargetBoxes to be used, accepted values: 3, 5, 7. TODO: Define range.
@@ -187,13 +187,15 @@ namespace ColoursInSpace
         {
 			get { return this._amntTargetBoxes; }
 			set 
-			{ 
-				if (this._amntTargetBoxes != value) 
+			{
+                while (mutexDominantColourAlgoRunning) ; // wait on the lock
+                if (this._amntTargetBoxes != value && value >= 3 && value <= 7) 
 				{ 
 					_amntTargetBoxes = value;
 					if (settingsChanged != null)
 						settingsChanged(this); 
-				} 
+				}
+                mutexValueBeingChanged = false;
 			} 
         }
 
@@ -209,7 +211,7 @@ namespace ColoursInSpace
 			zoom = false;
             //filter; nothing yet....
             volume = 50;
-            amntTargetBoxes = 7;
+            amntTargetBoxes = 5;
         }
     }
 
