@@ -1,0 +1,139 @@
+////////////////HARBISSONS SONOCHROMATIC SCALE IN 2D//////////////////////// 
+(	
+	o = OSCresponder(nil, '/boxes3', { |t, r, msg| ("time:" + t).postln; msg.postln; ~targetsReceived = 3; ~msg = msg;}).add;
+	o = OSCresponder(nil, '/boxes5', { |t, r, msg| ("time:" + t).postln; msg.postln; ~targetsReceived = 5; ~msg = msg;}).add;
+	o = OSCresponder(nil, '/boxes7', { |t, r, msg| ("time:" + t).postln; msg.postln; ~targetsReceived = 7; ~msg = msg;}).add;
+
+	~msg = -1;
+
+	// Frequencies of the chromatic scale from F3 to E4. 
+	~frequencies = Array.with(174.61, 185.0, 196.0, 207.65, 220.0, 233.08, 246.94, 261.63, 277.18, 293.66, 311.13, 329.63);
+	
+	// Volume information per amount of Targets
+	~positions3 = Array.with(-1, 0, 1);
+	~positions5 = Array.with(-1, -0.5, 0, 0.5, 1);
+	~positions7 = Array.with(-1, -0.66, -0.33, 0, 0.33, 0.66, 1);
+
+
+
+	// Default tone
+	SynthDef.new('sonochromatic', {
+		 |freq, pos, vol| //parameters to be controlled by Kinect: colour, position and volume
+		 var sin, pan; 
+		 sin = SinOsc.ar(freq:freq, mul:vol);
+		 pan = Pan2.ar(sin, pos);
+		 Out.ar(0, pan);
+	}).add;
+	 
+	// Formant Synth
+	SynthDef.new('formant', {
+		 |freq, pos, vol, formant| 
+		 var sin, pan;
+		 sin = Formant.ar(fundfreq:freq, formfreq:formant, mul:vol);
+		 pan = Pan2.ar(sin, pos);
+		 Out.ar(0, pan);
+	}).add;
+)
+
+(
+	~synths3 = Array.fill(3, {Synth.new(\formant)});
+	~synths5 = Array.fill(5, {Synth.new(\formant)});
+	~synths7 = Array.fill(7, {Synth.new(\formant)});
+)
+
+
+(
+	Routine
+	{
+		{
+			if(~targetsReceived == 3,
+			{
+				if(~msg != -1, { // Should have been placed outside the loop
+					~synths3.collect(
+					{ 
+							
+							arg item, i;
+							~convert = ~frequencies.at(~msg.at(i+1));
+							~formant = 2.1**~msg.at(i+1) + 200;
+							item.set(\freq, ~convert, \pos, ~positions3[i],\vol, 0.2, \formant, ~formant);
+					});
+					~synths5.collect(
+					{ 
+							arg item, i;
+							~convert = ~frequencies.at(1);
+							~formant = 2.1 + 200;
+							item.set(\freq, ~convert, \pos, 0.0,\vol, 0.2, \formant, ~formant);
+					});
+					~synths7.collect(
+					{ 
+							arg item, i;
+							~convert = ~frequencies.at(1);
+							~formant = 2.1 + 200;
+							item.set(\freq, ~convert, \pos, 0.0,\vol, 0.2, \formant, ~formant);
+					});
+				});
+			});
+			if(~targetsReceived == 5,
+			{
+				if(~msg != -1, { // Should have been placed outside the loop
+					~synths3.collect(
+					{ 
+							
+							arg item, i;
+							~convert = ~frequencies.at(1);
+							~formant = 2.1 + 200;
+							item.set(\freq, ~convert, \pos, 0.0,\vol, 0.2, \formant, ~formant);
+					});
+					~synths5.collect(
+					{ 
+							arg item, i;
+							~convert = ~frequencies.at(~msg.at(i+1));
+							~formant = 2.1**~msg.at(i+1) + 200;
+							item.set(\freq, ~convert, \pos, ~positions5[i],\vol, 0.2, \formant, ~formant);
+					});
+					~synths7.collect(
+					{ 
+							arg item, i;
+							~convert = ~frequencies.at(1);
+							~formant = 2.1 + 200;
+							item.set(\freq, ~convert, \pos, 0.0,\vol, 0.2, \formant, ~formant);
+					});
+				});
+			});
+			if(~targetsReceived == 7,
+			{
+				if(~msg != -1, { // Should have been placed outside the loop
+					~synths3.collect(
+					{ 
+							
+							arg item, i;
+							~convert = ~frequencies.at(1);
+							~formant = 2.1 + 200;
+							item.set(\freq, ~convert, \pos, 0.0,\vol, 0.2, \formant, ~formant);
+					});
+					~synths5.collect(
+					{ 
+							arg item, i;
+							~convert = ~frequencies.at(1);
+							~formant = 2.1 + 200;
+							item.set(\freq, ~convert, \pos, 0.0,\vol, 0.2, \formant, ~formant);
+					});
+					~synths7.collect(
+					{ 
+							arg item, i;
+							~convert = ~frequencies.at(~msg.at(i+1));
+							~formant = 2.1**~msg.at(i+1) + 200;
+							item.set(\freq, ~convert, \pos, ~positions7[i],\vol, 0.2, \formant, ~formant);
+					});
+				});
+			});			
+			0.04.wait;
+		}.loop
+	}.play;
+)
+
+// OSC send test:
+m = NetAddr("127.0.0.1", 57120);
+m.sendMsg('/boxes3', 1, 3, 5);
+m.sendMsg('/boxes5', 1, 3, 5, 3, 1);
+m.sendMsg('/boxes7', 1, 3, 5, 7, 5, 3, 1);
