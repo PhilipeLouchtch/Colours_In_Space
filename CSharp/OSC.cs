@@ -50,18 +50,25 @@ namespace ColoursInSpace
         {
 			int capacity = shippingData.Capacity;
 			OscElement boxesMSG;
+
+			// Will return the instance of the settings, not new settings
+			RuntimeSettings settings = RuntimeSettings.Instance;
+			double volume = (double)settings.volume / 100;
 			if (capacity == 3)
-				boxesMSG = new OscElement("/boxes3", shippingData[0].sonochromaticColour,
+				boxesMSG = new OscElement("/boxes3", volume,
+													 shippingData[0].sonochromaticColour,
 													 shippingData[1].sonochromaticColour,
 													 shippingData[2].sonochromaticColour);
 			else if (capacity == 5)
-				boxesMSG = new OscElement("/boxes5", shippingData[0].sonochromaticColour,
+				boxesMSG = new OscElement("/boxes5", volume,
+													 shippingData[0].sonochromaticColour,
 													 shippingData[1].sonochromaticColour,
 													 shippingData[2].sonochromaticColour,
 													 shippingData[3].sonochromaticColour,
 													 shippingData[4].sonochromaticColour);
 			else
-				boxesMSG = new OscElement("/boxes7", shippingData[0].sonochromaticColour,
+				boxesMSG = new OscElement("/boxes7", volume,
+													 shippingData[0].sonochromaticColour,
 													 shippingData[1].sonochromaticColour,
 													 shippingData[2].sonochromaticColour,
 													 shippingData[3].sonochromaticColour,

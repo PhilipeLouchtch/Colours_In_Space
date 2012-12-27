@@ -76,86 +76,86 @@
 (
 	Routine
 	{
-	 	var msgTest; // Shitty and not "correct" SClang folding optimizations force me to do this
-	 	msgTest = ~msg; 
-		while (msgTest == -1) { 0.02.wait; }
 		{
-			if (~targetsReceived == 3,
+			if (~msg != -1,
 			{
-				if (~currentTargets != 3,
+				if (~targetsReceived == 3,
 				{
-					~synths5.collect(
-					{ 
-							arg item, i;
-							item.set(\vol, 0.0);
+					if (~currentTargets != 3,
+					{
+						~synths5.collect(
+						{ 
+								arg item, i;
+								item.set(\vol, 0.0);
+						});
+						~synths7.collect(
+						{ 
+								arg item, i;
+								item.set(\vol, 0.0);
+						});
+						~currentTargets = 3;
 					});
-					~synths7.collect(
-					{ 
-							arg item, i;
-							item.set(\vol, 0.0);
-					});
-					~currentTargets = 3;
-				});
-				~synths3.collect(
-				{ 
-				
-					arg item, i;
-					~convert = ~frequencies.at(~msg.at(i+2));
-					~formant = 2.1**~msg.at(i+2) + 200;
-					~volume  = 0.2 * ~msg[1];
-					item.set(\freq, ~convert, \pos, ~positions3[i],\vol, ~volume, \formant, ~formant);
-				});
-			});
-			if (~targetsReceived == 5,
-			{
-				if (~currentTargets != 5,
-				{
 					~synths3.collect(
 					{ 
 				
-							arg item, i;
-							item.set(\vol, 0.0);
+						arg item, i;
+						~convert = ~frequencies.at(~msg.at(i+2));
+						~formant = 2.1**~msg.at(i+2) + 200;
+						~volume  = 0.2 * ~msg[1];
+						item.set(\freq, ~convert, \pos, ~positions3[i],\vol, ~volume, \formant, ~formant);
 					});
-					~synths7.collect(
-					{ 
-							arg item, i;
-							item.set(\vol, 0.0);
-					});
-				~currentTargets = 5;
 				});
-				~synths5.collect(
-				{ 
-					arg item, i;
-					~convert = ~frequencies.at(~msg.at(i+2));
-					~formant = 2.1**~msg.at(i+2) + 200;
-					~volume  = 0.2 * ~msg[1];
-					item.set(\freq, ~convert, \pos, ~positions5[i],\vol, ~volume, \formant, ~formant);
-				});
-			});
-			if (~targetsReceived == 7,
-			{
-				if (~currentTargets != 7,
+				if (~targetsReceived == 5,
 				{
-					~synths3.collect(
-					{ 
+					if (~currentTargets != 5,
+					{
+						~synths3.collect(
+						{ 
 				
-							arg item, i;
-							item.set(\vol, 0.0);
+								arg item, i;
+								item.set(\vol, 0.0);
+						});
+						~synths7.collect(
+						{ 
+								arg item, i;
+								item.set(\vol, 0.0);
+						});
+					~currentTargets = 5;
 					});
 					~synths5.collect(
 					{ 
-							arg item, i;
-							item.set(\vol, 0.0);
+						arg item, i;
+						~convert = ~frequencies.at(~msg.at(i+2));
+						~formant = 2.1**~msg.at(i+2) + 200;
+						~volume  = 0.2 * ~msg[1];
+						item.set(\freq, ~convert, \pos, ~positions5[i],\vol, ~volume, \formant, ~formant);
 					});
-				~currentTargets = 7;
 				});
-				~synths7.collect(
-				{ 
-					arg item, i;
-					~convert = ~frequencies.at(~msg.at(i+2));
-					~formant = 2.1**~msg.at(i+2) + 200;
-					~volume  = 0.2 * ~msg[1];
-					item.set(\freq, ~convert, \pos, ~positions7[i],\vol, ~volume, \formant, ~formant);
+				if (~targetsReceived == 7,
+				{
+					if (~currentTargets != 7,
+					{
+						~synths3.collect(
+						{ 
+				
+								arg item, i;
+								item.set(\vol, 0.0);
+						});
+						~synths5.collect(
+						{ 
+								arg item, i;
+								item.set(\vol, 0.0);
+						});
+					~currentTargets = 7;
+					});
+					~synths7.collect(
+					{ 
+						arg item, i;
+						~convert = ~frequencies.at(~msg.at(i+2));
+						~formant = 2.1**~msg.at(i+2) + 200;
+						~volume  = 0.2 * ~msg[1];
+						item.set(\freq, ~convert, \pos, ~positions7[i],\vol, ~volume, \formant, ~formant);
+					});
 				});
 			});
 			0.02.wait;

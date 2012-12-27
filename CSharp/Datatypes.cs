@@ -174,7 +174,7 @@ namespace ColoursInSpace
         public object filter;
 
         /// <summary>
-        /// Volume, value range from 0 to 100. TODO: Define range of 0 to 100 for safety
+        /// Volume, value range from 0 to 100
         /// </summary>
         public ushort volume { get; set; }
 
@@ -206,18 +206,18 @@ namespace ColoursInSpace
 			} 
         }
 
-        public static event SettingsChanged settingsChanged;
+        public event SettingsChanged settingsChanged;
 
         /// <summary>
         /// Constructor with default settings
         /// </summary>
-        public RuntimeSettings()
+        RuntimeSettings()
         {
             distance = true;
             colour = true;
 			zoom = false;
             //filter; nothing yet....
-            volume = 50;
+            volume = 100;
             amntTargetBoxes = 5;
         }
     }

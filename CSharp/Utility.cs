@@ -117,7 +117,6 @@ namespace ColoursInSpace
     static class DominantColourAlgorithms
     {
         // Heavily modified http://chironexsoftware.com/blog/?p=60
-        // HORRIBLE PERFORMANCE
         unsafe public static double CalculateDominantColorByEuclidianDistance(Colours colours, int leftX, int dimension, int upperY, int pixels)
         {
             List<Tuple<Colour, double>> colourDist = new List<Tuple<Colour, double>>();
@@ -148,8 +147,7 @@ namespace ColoursInSpace
                     colourDist.Add(new Tuple<Colour, double>(c1, dist));
                 }
             }
-            
-            //take weighted average of top 2% of colors         
+                     
             var clrs = (from entry in colourDist
                         orderby entry.Item2 ascending
                         select new { colour = entry.Item1, Dist = 1.0 / Math.Max(1, entry.Item2) }).ToList();
@@ -185,9 +183,9 @@ namespace ColoursInSpace
             double light = 0;
 
             // Calculate the average (literally) colour in the target box
-            for (int x = leftX; x < dimension + leftX; x += 4)
+            for (int x = leftX; x < dimension + leftX; x += 2)
             {
-                for (int y = upperY; y < upperY + dimension; y += 4)
+                for (int y = upperY; y < upperY + dimension; y += 2)
                 {
                     red += colours.pixels[x, y].red;
                     green += colours.pixels[x, y].green;

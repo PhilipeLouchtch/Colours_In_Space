@@ -21,7 +21,7 @@ namespace ColoursInSpace
 
         public VoiceRecognition()
         {
-            this.settings = new RuntimeSettings();
+			this.settings = RuntimeSettings.Instance;
         }
 
         public void IntializeRecognition(ref KinectSensor sensor)

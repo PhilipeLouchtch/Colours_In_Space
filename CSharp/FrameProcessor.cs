@@ -65,7 +65,7 @@ namespace ColoursInSpace
 
             this.settings = settings;
             processTargetBoxChanges(settings); // Process the first-time settings
-            RuntimeSettings.settingsChanged += this.processTargetBoxChanges;
+            settings.settingsChanged += this.processTargetBoxChanges;
 
             // Setting up the backgroundProcesses
             backgroundProcessColour = new BackgroundWorker();
