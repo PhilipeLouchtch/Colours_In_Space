@@ -17,15 +17,8 @@ using System.Net;
 
 namespace ColoursInSpace
 {
-    /// <summary>
-    /// Interaction logic for Window1.xaml
-    /// </summary>
-    /// 
-
-
     public partial class InitConfigWindow : Window
     {
-
         private OSC osc;
         private FrameProcessor coloursProcessor;
         private Kinect kinectLogic;
@@ -109,7 +102,7 @@ namespace ColoursInSpace
 		void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
 		{
 			Slider slider	= (Slider)sender;
-			settings.volume = (ushort)slider.Value;
+			settings.volume = (short)slider.Value;
 		}
 
         private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)

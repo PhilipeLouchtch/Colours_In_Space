@@ -82,11 +82,11 @@ namespace ColoursInSpace
                 {
                     if (result.Contains("Up"))
                     {
-                        throw new NotImplementedException("Volume not yet implemented");
+						settings.volume += 10;
                     }
                     else if (result.Contains("Down"))
                     {
-                        throw new NotImplementedException("Volume not yet implemented");
+						settings.volume -= 10;
                     }
                 }
                 else if (result.Contains("Targets"))

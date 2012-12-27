@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ColoursInSpace
@@ -157,14 +158,19 @@ namespace ColoursInSpace
 			get { return this._zoom; } 
 			set 
 			{ 
-				if (this._zoom != value) 
+				if (this._zoom != value)
 				{
-                    while (mutexDominantColourAlgoRunning) ; // wait on the lock
-                    mutexValueBeingChanged = true;           // lock
-					_zoom = value;
-					if (settingsChanged != null)
-						settingsChanged(this);
-                    mutexValueBeingChanged = false;
+					// wait on the lock
+					while (DominantColourAlgoRunningMutex)
+						Thread.Sleep(1);
+
+					amntTargetsChangingMutex = true;
+					{
+						_zoom = value;
+						if (settingsChanged != null)
+							settingsChanged(this);						
+					}
+					amntTargetsChangingMutex = false;
 				}
 			} 
 		}
@@ -176,10 +182,23 @@ namespace ColoursInSpace
         /// <summary>
         /// Volume, value range from 0 to 100
         /// </summary>
-        public ushort volume { get; set; }
+		private short _volume;
+        public  short volume
+		{
+			get { return this._volume; }
+			set
+			{
+				if (value < 0)
+					this._volume = 0;
+				else if (value > 100)
+					this._volume = 100;
+				else
+					this._volume = value;
+			}
+		}
 
-        static public bool mutexDominantColourAlgoRunning;
-        static public bool mutexValueBeingChanged { get; private set; }
+        static public bool DominantColourAlgoRunningMutex;
+        static public bool amntTargetsChangingMutex { get; private set; }
 
         /// <summary>
         /// Amout of TargetBoxes to be used, accepted values: 3, 5, 7. TODO: Define range.
@@ -192,17 +211,22 @@ namespace ColoursInSpace
 			set 
 			{
                 if (this._amntTargetBoxes != value)
-                {
-                    while (mutexDominantColourAlgoRunning) ; // wait on the lock
-                    mutexValueBeingChanged = true;           // lock
-                    if (this._amntTargetBoxes != value && value >= 3 && value <= 7)
-                    {
-                        _amntTargetBoxes = value;
-                        if (settingsChanged != null)
-                            settingsChanged(this);
-                    }
-                    mutexValueBeingChanged = false;
-                }
+				{
+					// wait on the lock
+					while (DominantColourAlgoRunningMutex)
+						Thread.Sleep(1);
+
+					amntTargetsChangingMutex = true;
+					{
+						if (this._amntTargetBoxes != value && value >= 3 && value <= 7)
+						{
+							_amntTargetBoxes = value;
+							if (settingsChanged != null)
+								settingsChanged(this);
+						}
+					}
+					amntTargetsChangingMutex = false;
+				}
 			} 
         }
 
