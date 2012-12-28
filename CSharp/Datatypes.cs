@@ -20,7 +20,9 @@ namespace ColoursInSpace
         Blue,
         Violet,
         Magenta,
-        Rose
+        Rose,
+		WHITE = -1,
+		BLACK = -2
     };
 
 	class Colour
@@ -29,7 +31,7 @@ namespace ColoursInSpace
 		public byte green;
 		public byte blue;
 
-		public Colour(byte red, byte green, byte blue)
+		public Colour(byte blue, byte green, byte red)
 		{
 			this.red = red;
 			this.green = green;
@@ -41,48 +43,66 @@ namespace ColoursInSpace
     {
         public Colour[,] pixels;
 
-        public Colours()
+		public int dimension { get; private set; }
+
+		public Colours(TargetBox targetBox)
         {
-            pixels = new Colour[640, 480];
-			for (int i = 0; i < 480; i++)
+			this.dimension = targetBox.radius * 2;
+
+			pixels = new Colour[dimension, dimension];
+
+			for (int x = 0; x < dimension; x++)
 			{
-				for (int j = 0; j < 640; j++)
+				for (int y = 0; y < dimension; y++)
 				{
-					pixels[j, i] = new Colour(0, 0, 0);
+					pixels[x, y] = new Colour(0, 0, 0);
 				}
 			}
         }
-				
-        public void ProcessPixelBgraData(byte[] pixelData, object sender)
+
+		public void ProcessPixelByteData(byte[] pixelData, TargetBox targetBox)
         {
-			ParallelOptions parallelOptions = new ParallelOptions();
+            // Going into performance critical section
+            unsafe
+            {
+				int boxWidth = targetBox.radius * 2;
+				int boxRadius = targetBox.radius;
 
-			// TODO: Tweak the #iterations when done
-			// TODO: Test for correctness
-			int iterations = 2;
-			parallelOptions.MaxDegreeOfParallelism = iterations;
-			int length = pixelData.Length / iterations;
-			// Convert the pixelData to colours using # of iterations threads
-			Parallel.For(0, iterations, parallelOptions, (iterationNo) =>
-			{
-                // Going into performance critical section
-                unsafe
+				int boxXLeft = targetBox.x;
+				int boxYTop = targetBox.middle.y - boxRadius;
+				int boxXRight = boxXLeft + boxWidth;
+				int boxYBottom = boxYTop + boxWidth;
+
+				int pixelDataRowLength = 640 * 4;
+				int dimension = boxWidth * boxWidth;
+
+				// We start reading from this index
+				int pixelDataIndex = boxXLeft + (boxYTop * pixelDataRowLength);
+				int pixelDataIndexFrom = pixelDataIndex;
+
+				int x = 0;
+				int y = 0;
+
+				for (int i = 0; i < dimension; i++)
                 {
-                    int from = iterationNo * length;
-                    int to = length * (iterationNo + 1);
-                    int x = (from >> 2) % 640;
-                    int y = (from >> 2) / 640;
+					pixels[x, y].blue  = pixelData[i];
+					pixels[x, y].green = pixelData[i + 1];
+					pixels[x, y].red   = pixelData[i + 2];
 
-                    for (int i = from; i < to; i += 4)
-                    {
-                        pixels[x, y].blue = pixelData[i];
-                        pixels[x, y].green = pixelData[i + 1];
-                        pixels[x, y].red = pixelData[i + 2];
-
-                        if (x < 639) x++; else { x = 0; y++; }  //more efficient than a modulo and a div operation
-                    }
+					// Faster than the mod and div operation
+					if (x == boxWidth - 1)
+					{
+						pixelDataIndex += pixelDataIndexFrom + pixelDataRowLength;
+						x = 0;
+						y++;
+					}
+					else
+					{
+						pixelDataIndex++;
+						x++;
+					}
                 }
-			});
+            }
 
 			return;
         }
@@ -161,7 +181,7 @@ namespace ColoursInSpace
 				if (this._zoom != value)
 				{
 					// wait on the lock
-					while (DominantColourAlgoRunningMutex)
+					while (ColoursComputationRunningMutex)
 						Thread.Sleep(1);
 
 					amntTargetsChangingMutex = true;
@@ -197,7 +217,7 @@ namespace ColoursInSpace
 			}
 		}
 
-        static public bool DominantColourAlgoRunningMutex;
+        static public bool ColoursComputationRunningMutex;
         static public bool amntTargetsChangingMutex { get; private set; }
 
         /// <summary>
@@ -213,7 +233,7 @@ namespace ColoursInSpace
                 if (this._amntTargetBoxes != value)
 				{
 					// wait on the lock
-					while (DominantColourAlgoRunningMutex)
+					while (ColoursComputationRunningMutex)
 						Thread.Sleep(1);
 
 					amntTargetsChangingMutex = true;
@@ -271,9 +291,11 @@ namespace ColoursInSpace
 
         public Point middle;
 
+		public Colours boxColours;
+
 		public TargetBox()
 		{
-			// nothing for now
+			// unsed
 			depth = 0;
 		}
     }
