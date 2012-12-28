@@ -60,7 +60,7 @@ namespace ColoursInSpace
 			}
         }
 
-		public void ProcessPixelByteData(byte[] pixelData, TargetBox targetBox)
+		public void ProcessPixelByteData(byte[] pixelData, ref TargetBox targetBox)
         {
             // Going into performance critical section
             unsafe
@@ -74,7 +74,7 @@ namespace ColoursInSpace
 				int boxYBottom = boxYTop + boxWidth;
 
 				int pixelDataRowLength = 640 * 4;
-				int dimension = boxWidth * boxWidth;
+				int iterations = (boxWidth) * (boxWidth);
 
 				// We start reading from this index
 				int pixelDataIndex = boxXLeft + (boxYTop * pixelDataRowLength);
@@ -83,24 +83,32 @@ namespace ColoursInSpace
 				int x = 0;
 				int y = 0;
 
-				for (int i = 0; i < dimension; i++)
-                {
-					pixels[x, y].blue  = pixelData[i];
-					pixels[x, y].green = pixelData[i + 1];
-					pixels[x, y].red   = pixelData[i + 2];
+				for (int i = 0; i < iterations; i++)
+				{
+					byte blue = pixelData[pixelDataIndex];
+					byte green = pixelData[pixelDataIndex + 1];
+					byte red = pixelData[pixelDataIndex + 2];
 
-					// Faster than the mod and div operation
+					pixels[x, y].blue  = blue;
+					pixels[x, y].green = green;
+					pixels[x, y].red = red;
+
+					#region Compute Index
+					/* Optimization, faster than a division and modulo operation */
+					// Finished with this row, need to compute the index of the next one
 					if (x == boxWidth - 1)
 					{
-						pixelDataIndex += pixelDataIndexFrom + pixelDataRowLength;
+						pixelDataIndex = pixelDataIndexFrom + (y + 1) * pixelDataRowLength;
 						x = 0;
 						y++;
 					}
+					// Continue with this row
 					else
 					{
 						pixelDataIndex++;
 						x++;
 					}
+					#endregion
                 }
             }
 

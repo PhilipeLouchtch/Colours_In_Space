@@ -72,29 +72,22 @@ namespace ColoursInSpace
 		{
 			byte[] pixelData = (byte[])e.Argument;
 
-			int dimension = targetBoxes.boxes[0].radius;
-
-			// Amount of pixels in the targetbox
-			int pixels = dimension * dimension;
-
 			// Concurrency safe datastructure
 			ConcurrentBag<ShippingDataSort> bag = new ConcurrentBag<ShippingDataSort>();
-
 			List<ShippingDataSort> shippingData = new List<ShippingDataSort>(targetBoxes.boxes.Count);
-
-			ParallelOptions options = new ParallelOptions();
-			options.MaxDegreeOfParallelism = 4;
 
 			while (RuntimeSettings.amntTargetsChangingMutex) Thread.Sleep(1); // wait for changes to be processed there.
 
 			RuntimeSettings.ColoursComputationRunningMutex = true;
 			{
+				ParallelOptions options = new ParallelOptions();
+				options.MaxDegreeOfParallelism = 4;
 				Parallel.For(0, targetBoxes.boxes.Count, options, (i) =>
 				//for (int i = 0; i < targetBoxes.boxes.Count; i++)
 				{
 					TargetBox targetBox = targetBoxes.boxes[i];
 
-					targetBox.boxColours.ProcessPixelByteData(pixelData, targetBox);
+					targetBox.boxColours.ProcessPixelByteData(pixelData, ref targetBox);
 
 					double hue = DominantColourAlgorithms.CalculateAverageColourByAveraging(targetBox.boxColours);
 
@@ -153,9 +146,8 @@ namespace ColoursInSpace
 
         private void processTargetBoxChanges(Object sender)
         {
-            settings = (RuntimeSettings)sender;
-            bool zoom = settings.zoom;
-            ushort boxes = settings.amntTargetBoxes;
+            bool zoom = this.settings.zoom;
+            ushort boxes = this.settings.amntTargetBoxes;
             TargetBox targetBox = new TargetBox();
 
             // Initialize the targetBoxes collection

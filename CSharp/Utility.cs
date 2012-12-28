@@ -171,12 +171,12 @@ namespace ColoursInSpace
 
         unsafe public static double CalculateAverageColourByAveraging(Colours colours)
         {
-			UInt64 pixelCount = 0;
 			int dimension = colours.dimension;
+			ulong pixelCount = (ulong) (dimension * dimension);
 
-            UInt64 red = 0;
-			UInt64 green = 0;
-			UInt64 blue = 0;
+			ulong red = 0;
+			ulong green = 0;
+			ulong blue = 0;
 
             double hue = 0;
             double saturation = 0;
@@ -191,8 +191,6 @@ namespace ColoursInSpace
                     red	  += colours.pixels[x, y].red;
                     green += colours.pixels[x, y].green;
                     blue  += colours.pixels[x, y].blue;
-
-					pixelCount++;
                 }
             }
 
