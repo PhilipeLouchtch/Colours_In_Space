@@ -61,33 +61,41 @@ namespace ColoursInSpace
                 }
             }
 
-            if (null != this.sensor)
-            {
-                // Turn on the color stream to receive color frames
-                this.sensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
+			if (null != this.sensor)
+			{
+				// We only want the RGB and the Depth data
+				this.sensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
 				this.sensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
 
-                // Allocate space to put the pixels we'll receive
-                this.colourPixels = new byte[this.sensor.ColorStream.FramePixelDataLength];
+				// Allocate space to put the pixels we'll receive
+				this.colourPixels = new byte[this.sensor.ColorStream.FramePixelDataLength];
 				this.depthPixels = new short[this.sensor.DepthStream.FramePixelDataLength];
 
-                // Add event handlers to be called whenever there is new color or depth frame data
+				// Add event handlers to be called whenever there is new color or depth frame data
 				this.sensor.DepthFrameReady += this.DepthFrameReady;
 				this.sensor.ColorFrameReady += this.ColorFrameReady;
 
-                // Start the sensor!
-                try
-                {
-                    this.sensor.Start();
-                }
-                catch (IOException)
-                {
-                    this.sensor = null;
-                }
+				// Start the sensor!
+				try
+				{
+					this.sensor.Start();
+				}
+				catch (IOException)
+				{
+					this.sensor = null;
 
-                this.voiceRecognition = new VoiceRecognition();
-                this.voiceRecognition.IntializeRecognition(ref this.sensor);
-            }
+					// We can't recover from this error
+					throw new IOException("Can't start the Kinect. Has it got power?");
+				}
+
+				this.voiceRecognition = new VoiceRecognition();
+				this.voiceRecognition.IntializeRecognition(ref this.sensor);
+			}
+			else
+			{
+				// No Kinect found, can't recover
+				throw new IOException("No connected Kinect found. Is it connected and powered?");
+			}
 		}
 
         /// <summary>

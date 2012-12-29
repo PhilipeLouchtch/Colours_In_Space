@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace ColoursInSpace
 {
@@ -10,9 +8,9 @@ namespace ColoursInSpace
     public enum SonochromaticColourType
     {
         Red = 0,
-        Orange,
-        Yellow,
-        Chartreuse,
+        Orange = 1,
+        Yellow = 2,
+        Chartreuse = 3,
         Green,
         Spring,
         Cyan,
@@ -20,8 +18,17 @@ namespace ColoursInSpace
         Blue,
         Violet,
         Magenta,
-        Rose
+        Rose,
+		WHITE = 1,
+		GRAYS = 2,
+		BLACK = 3
     };
+
+	public enum ColourAveragingAlgorithms
+	{
+		simple,
+		euclidian
+	};
 
 	class Colour
 	{
@@ -29,7 +36,7 @@ namespace ColoursInSpace
 		public byte green;
 		public byte blue;
 
-		public Colour(byte red, byte green, byte blue)
+		public Colour(byte blue, byte green, byte red)
 		{
 			this.red = red;
 			this.green = green;
@@ -41,48 +48,73 @@ namespace ColoursInSpace
     {
         public Colour[,] pixels;
 
-        public Colours()
+		public int dimension { get; private set; }
+
+		public Colours(TargetBox targetBox)
         {
-            pixels = new Colour[640, 480];
-			for (int i = 0; i < 480; i++)
+			this.dimension = targetBox.radius * 2;
+
+			pixels = new Colour[dimension, dimension];
+
+			for (int x = 0; x < dimension; x++)
 			{
-				for (int j = 0; j < 640; j++)
+				for (int y = 0; y < dimension; y++)
 				{
-					pixels[j, i] = new Colour(0, 0, 0);
+					pixels[x, y] = new Colour(0, 0, 0);
 				}
 			}
         }
-				
-        public void ProcessPixelBgraData(byte[] pixelData, object sender)
+
+		public static void ProcessPixelByteData(byte[] pixelData, ref TargetBox targetBox, ref Colour[,] boxColours)
         {
-			ParallelOptions parallelOptions = new ParallelOptions();
+            // Going into performance critical section
+            unsafe
+            {
+				int boxWidth = targetBox.radius * 2;
+				int boxRadius = targetBox.radius;
 
-			// TODO: Tweak the #iterations when done
-			// TODO: Test for correctness
-			int iterations = 2;
-			parallelOptions.MaxDegreeOfParallelism = iterations;
-			int length = pixelData.Length / iterations;
-			// Convert the pixelData to colours using # of iterations threads
-			Parallel.For(0, iterations, parallelOptions, (iterationNo) =>
-			{
-                // Going into performance critical section
-                unsafe
-                {
-                    int from = iterationNo * length;
-                    int to = length * (iterationNo + 1);
-                    int x = (from >> 2) % 640;
-                    int y = (from >> 2) / 640;
+				int boxXLeft = targetBox.x;
+				int boxYTop = targetBox.middle.y - boxRadius;
+				int boxXRight = boxXLeft + boxWidth;
+				int boxYBottom = boxYTop + boxWidth;
 
-                    for (int i = from; i < to; i += 4)
-                    {
-                        pixels[x, y].blue = pixelData[i];
-                        pixels[x, y].green = pixelData[i + 1];
-                        pixels[x, y].red = pixelData[i + 2];
+				int pixelDataRowLength = 640 * 4;
+				int iterations = boxWidth * boxWidth;
 
-                        if (x < 639) x++; else { x = 0; y++; }  //more efficient than a modulo and a div operation
-                    }
+				// We start reading from this index
+				int pixelDataIndex = (boxXLeft) * 4 + (boxYTop * pixelDataRowLength);
+				int pixelDataIndexFrom = pixelDataIndex;
+
+				int x = 0;
+				int y = 0;
+
+				for (int i = 0; i < iterations; i++)
+				{
+					byte blue = pixelData[pixelDataIndex];
+					byte green = pixelData[pixelDataIndex + 1];
+					byte red = pixelData[pixelDataIndex + 2];
+
+					boxColours[x, y].blue = blue;
+					boxColours[x, y].green = green;
+					boxColours[x, y].red = red;
+
+					#region Compute Index
+					// Finished with this row, compute the index of the next one
+					if (x == boxWidth - 1)
+					{
+						pixelDataIndex = pixelDataIndexFrom + (y + 1) * pixelDataRowLength;
+						x = 0;
+						y++;
+					}
+					// Continue with this row
+					else
+					{
+						pixelDataIndex += 4;
+						x++;
+					}
+					#endregion
                 }
-			});
+            }
 
 			return;
         }
@@ -161,7 +193,7 @@ namespace ColoursInSpace
 				if (this._zoom != value)
 				{
 					// wait on the lock
-					while (DominantColourAlgoRunningMutex)
+					while (ColoursComputationRunningMutex)
 						Thread.Sleep(1);
 
 					amntTargetsChangingMutex = true;
@@ -174,6 +206,8 @@ namespace ColoursInSpace
 				}
 			} 
 		}
+
+		public ColourAveragingAlgorithms algorithm { get; set; }
 
 
         //Placeholder for the filter type
@@ -194,10 +228,13 @@ namespace ColoursInSpace
 					this._volume = 100;
 				else
 					this._volume = value;
+
+				if (settingsChanged != null)
+					settingsChanged(this);	
 			}
 		}
 
-        static public bool DominantColourAlgoRunningMutex;
+        static public bool ColoursComputationRunningMutex;
         static public bool amntTargetsChangingMutex { get; private set; }
 
         /// <summary>
@@ -213,7 +250,7 @@ namespace ColoursInSpace
                 if (this._amntTargetBoxes != value)
 				{
 					// wait on the lock
-					while (DominantColourAlgoRunningMutex)
+					while (ColoursComputationRunningMutex)
 						Thread.Sleep(1);
 
 					amntTargetsChangingMutex = true;
@@ -271,9 +308,11 @@ namespace ColoursInSpace
 
         public Point middle;
 
+		public Colours boxColours;
+
 		public TargetBox()
 		{
-			// nothing for now
+			// unsed
 			depth = 0;
 		}
     }

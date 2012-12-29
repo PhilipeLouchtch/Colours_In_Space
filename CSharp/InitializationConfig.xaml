@@ -4,7 +4,11 @@
         xmlns:Properties="clr-namespace:ColoursInSpace.Properties" x:Name="ConfigWindow" x:Class="ColoursInSpace.InitConfigWindow"
         Title="Colours In Space Initial Configuration Window" Height="376" Width="469.236" ResizeMode="NoResize" WindowStyle="ToolWindow" Loaded="WindowLoaded" Closing="WindowClosing">
     <Grid Height="355" VerticalAlignment="Center" Margin="0,0,0,3">
-        <GroupBox x:Name="ImagePreviewGroup" Header=" Detection settings" HorizontalAlignment="Left" Margin="10,10,0,10" Width="250"  >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="265*"/>
+            <ColumnDefinition Width="198*"/>
+        </Grid.ColumnDefinitions>
+        <GroupBox x:Name="ImagePreviewGroup" Header=" Detection settings" Margin="10,10,3,10"  >
             <Grid Margin="0,-14,-2,-12"  Height="339" VerticalAlignment="Top">
                 <Image x:Name="PreviewImagebox" Margin="10,22,10,181" />
                 <GroupBox x:Name="ModeParameters" Header=" Mode Parameters" Margin="0,226,2,12" >
@@ -44,16 +48,21 @@
                         </TransformGroup>
                     </Label.RenderTransform>
                 </Label>
-                <Label Content="Amount of target boxes:" HorizontalAlignment="Right" Margin="0,158,98,153"  Width="132"/>
+                <Label Content="Amount of target boxes:" Margin="10,158,98,153"/>
                 <CheckBox x:Name="Zoom" Content="Zoom" Margin="174,164,10,158" Checked="Zoom_Checked" Unchecked="Zoom_Checked" />
                 <Slider x:Name="Targets" Margin="10,182,10,130" TickPlacement="BottomRight" TickFrequency="2" SmallChange="2" Cursor="Arrow" Maximum="7" Minimum="3" LargeChange="2" Value="3" Background="{x:Null}" IsSnapToTickEnabled="True" />
             </Grid>
         </GroupBox>
-        <Slider x:Name="VolumeSlider"  Margin="274,31,10,306" Value="50" SmallChange="1" TickFrequency="5" LargeChange="25" Maximum="100" AutoToolTipPlacement="TopLeft" />
-        <Label x:Name="Vol_Label" Content="Volume" HorizontalAlignment="Left" Margin="269,10,0,0" VerticalAlignment="Top" Width="64" />
-        <ComboBox Margin="274,79,10,254" />
-        <Label x:Name="Filter_Label" Content="Filter" HorizontalAlignment="Left" Margin="269,54,0,0" VerticalAlignment="Top" Width="64" />
-        <Button x:Name="startToggle" Content="Fire up the Kinect!" Margin="274,296,10,10"  Click="startToggle_Click"/>
+        <Slider x:Name="VolumeSlider"  Margin="11,31,10,306" Value="50" SmallChange="1" TickFrequency="5" LargeChange="25" Maximum="100" AutoToolTipPlacement="TopLeft" Grid.Column="1" />
+        <Label Content="Volume" Margin="6,10,130,0" VerticalAlignment="Top" Grid.Column="1" Height="25" />
+        <ComboBox Margin="11,79,10,254" Grid.Column="1" />
+        <Label Content="Filter" HorizontalAlignment="Left" Margin="6,54,0,0" VerticalAlignment="Top" Width="64" Grid.Column="1" Height="25" />
+        <Button x:Name="startToggle" Content="Start!" Margin="11,296,10,10"  Click="startToggle_Click" Grid.Column="1"/>
+        <ComboBox x:Name="Algorithm" Margin="11,135,10,199" SelectionChanged="Algorithm_SelectionChanged" Grid.Column="1" SelectedIndex="0" ToolTip="The current algorithm used to determine the average colour per target box.">
+            <ComboBoxItem Content="Simple Averaging" ToolTip="Simplest algorithm (default)"/>
+            <ComboBoxItem Content="Euclidian" ToolTip="Slower, experimental"/>
+        </ComboBox>
+        <Label Content="Average colour algorithm" Margin="6,110,55,0" VerticalAlignment="Top" Grid.Column="1" Height="25"/>
 
     </Grid>
 </Window>

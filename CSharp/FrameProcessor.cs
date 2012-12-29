@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using Microsoft.Kinect;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Threading;
 using System.ComponentModel;
 using System.Collections.Concurrent;
@@ -14,8 +11,22 @@ namespace ColoursInSpace
 {
     public delegate void ProcessFrameData(byte[] colourPixels, short[] depthPixels);
 
+#if DEBUG5
+	public static class bitmaps
+	{
+		public static WriteableBitmap box1;
+		public static WriteableBitmap box2;
+		public static WriteableBitmap box3;
+		public static WriteableBitmap box4;
+		public static WriteableBitmap box5;
+	}
+#endif
+
     class FrameProcessor
     {
+#if DEBUG5
+		TargetBoxPreview previewWindow;
+#endif
         private byte[] pixelBGRAData;
         private short[] grayDepthData;
 
@@ -28,11 +39,6 @@ namespace ColoursInSpace
         /// Storing all the kinect settings here
         /// </summary>
         public RuntimeSettings settings;
-
-        /// <summary>
-        /// Intermediary storage for the processed ABGR frame
-        /// </summary>
-        private Colours colours;
 
         /// <summary>
         /// Delegates to the OSC send message methods
@@ -58,7 +64,6 @@ namespace ColoursInSpace
         /// <param name="amntTargetBoxes">Amount of colours to be stored (the amount of targets set)</param>
         public FrameProcessor(SendOSCMsg sendOscMsg, SendOSCBoxes sendOSCBoxes, RuntimeSettings settings)
         {
-            colours = new Colours();
             this.sendOSCMsg = sendOscMsg;
             this.sendOSCBoxes = sendOSCBoxes;
             pixelBGRAData = new byte[(640 * 480 * 4)];
@@ -72,60 +77,98 @@ namespace ColoursInSpace
             backgroundProcessDepth = new BackgroundWorker();
             backgroundProcessColour.DoWork += new DoWorkEventHandler(this.ProcessColourData);
             backgroundProcessDepth.DoWork += new DoWorkEventHandler(this.ProcessDepthData);
+
+
+#if DEBUG5
+			bitmaps.box1 = new WriteableBitmap(108, 108, 96.0, 96.0, PixelFormats.Bgr32, null);
+			bitmaps.box2 = new WriteableBitmap(108, 108, 96.0, 96.0, PixelFormats.Bgr32, null);
+			bitmaps.box3 = new WriteableBitmap(108, 108, 96.0, 96.0, PixelFormats.Bgr32, null);
+			bitmaps.box4 = new WriteableBitmap(108, 108, 96.0, 96.0, PixelFormats.Bgr32, null);
+			bitmaps.box5 = new WriteableBitmap(108, 108, 96.0, 96.0, PixelFormats.Bgr32, null);
+
+			previewWindow = new TargetBoxPreview();
+			previewWindow.Box1.Source = bitmaps.box1;
+			previewWindow.Box2.Source = bitmaps.box2;
+			previewWindow.Box3.Source = bitmaps.box3;
+			previewWindow.Box4.Source = bitmaps.box4;
+			previewWindow.Box5.Source = bitmaps.box5;
+
+			previewWindow.Show();
+#endif
         }
+
+		~FrameProcessor()
+		{
+#if DEBUG5
+			previewWindow = null;
+#endif
+		}
 
         private void ProcessColourData(object sender, DoWorkEventArgs e)
-        {
-            colours.ProcessPixelBgraData((byte[])e.Argument, sender);
+		{
+			byte[] pixelData = (byte[])e.Argument;
 
-            int dimension = targetBoxes.boxes[0].radius;
-            int upperY = 240 - (dimension / 2);
-            // Amount of pixels in the targetbox
-            int pixels = (int)Math.Pow(dimension, 2);
+			// Concurrency safe datastructure
+			ConcurrentBag<ShippingDataSort> bag = new ConcurrentBag<ShippingDataSort>();
+			List<ShippingDataSort> shippingData = new List<ShippingDataSort>(targetBoxes.boxes.Count);
 
-            // Concurrency safe datastructure
-            ConcurrentBag<ShippingDataSort> bag = new ConcurrentBag<ShippingDataSort>();
+			while (RuntimeSettings.amntTargetsChangingMutex) Thread.Sleep(1); // wait for changes to be processed there.
 
-            List<ShippingDataSort> shippingData = new List<ShippingDataSort>(targetBoxes.boxes.Count);
+			RuntimeSettings.ColoursComputationRunningMutex = true;
+			{
+				ParallelOptions options = new ParallelOptions();
+				options.MaxDegreeOfParallelism = 4;
+				Parallel.For(0, targetBoxes.boxes.Count, options, (i) =>
+				//for (int i = 0; i < targetBoxes.boxes.Count; i++)
+				{
+					SonochromaticColourType colour = SonochromaticColourType.BLACK;
+					TargetBox targetBox = targetBoxes.boxes[i];
 
-            ParallelOptions options = new ParallelOptions();
-            options.MaxDegreeOfParallelism = 3;
-            while (RuntimeSettings.amntTargetsChangingMutex) ; // wait for changes to be processed there
-            RuntimeSettings.DominantColourAlgoRunningMutex = true;
-            Parallel.For(0, targetBoxes.boxes.Count, options, (i) =>
-            {
-                double hue = DominantColourAlgorithms.CalculateAverageColourByAveraging(colours,
-                                                                                        targetBoxes.boxes[i].x,
-                                                                                        dimension,
-                                                                                        upperY,
-                                                                                        pixels);
+					Colours.ProcessPixelByteData(pixelData, ref targetBox, ref targetBox.boxColours.pixels);
 
-                //double hue = DominantColourAlgorithms.CalculateDominantColorByEuclidianDistance(colours,
-                //                                                                        targetBoxes.boxes[i].x,
-                //                                                                        dimension,
-                //                                                                        upperY,
-                //                                                                        pixels);
+					if (settings.algorithm == ColourAveragingAlgorithms.simple)
+						colour = DominantColourAlgorithms.CalculateAverageColourByAveraging(targetBox.boxColours);
+					else if (settings.algorithm == ColourAveragingAlgorithms.euclidian)
+						colour = DominantColourAlgorithms.CalculateDominantColorByEuclidianDistance(targetBox.boxColours);
 
-                // Get the associated sonochromatic colour from the hue
-                SonochromaticColourType colour = Utility.HueToSonochromatic((int)hue);
-                bag.Add(new ShippingDataSort(colour, i));
-            });
-            RuntimeSettings.DominantColourAlgoRunningMutex = false;
+					bag.Add(new ShippingDataSort(colour, i));
 
-            int bagSize = bag.Count;
-            for (int i = 0; i < bagSize; i++)
-            {
-                ShippingDataSort element;
-                while (!bag.TryTake(out element));
-                shippingData.Add(element);
-            }
+#if DEBUG5
+					int dimension = targetBox.radius * 2;
+					Colour tempColour;
+					Byte[] arr = new Byte[(dimension * dimension * 4)];
+					for (int y = 0; y < dimension; y++)
+					{
+						for (int x = dimension - 1; x >= 0; x--)
+						{
+							tempColour = targetBox.boxColours.pixels[dimension - 1 - x, y];
+							arr[((dimension * 4 * y) + (x * 4))] = tempColour.blue;
+							arr[((dimension * 4 * y) + (x * 4) + 1)] = tempColour.green;
+							arr[((dimension * 4 * y) + (x * 4) + 2)] = tempColour.red;
+							arr[((dimension * 4 * y) + (x * 4) + 3)] = 0;
+						}
+					}
+					this.previewWindow.DoThaThang(arr, i, dimension);
+#endif
 
-            // Needs to be sorted,
-            // boxes have been inserted in a non-linear order due to concurrent loop
-            shippingData.Sort(ShippingDataSort.compare);
+				});
+			}
+			RuntimeSettings.ColoursComputationRunningMutex = false;
 
-            sendOSCBoxes(shippingData);
-        }
+			int bagSize = bag.Count;
+			for (int i = 0; i < bagSize; i++)
+			{
+				ShippingDataSort element;
+				while (!bag.TryTake(out element)) ;
+				shippingData.Add(element);
+			}
+
+			// Needs to be sorted,
+			// boxes have been inserted in a non-linear order due to concurrent loop
+			shippingData.Sort(ShippingDataSort.compare);
+
+			sendOSCBoxes(shippingData);
+		}
 
         private void ProcessDepthData(object depthPixels, DoWorkEventArgs e)
         {
@@ -158,9 +201,8 @@ namespace ColoursInSpace
 
         private void processTargetBoxChanges(Object sender)
         {
-            settings = (RuntimeSettings)sender;
-            bool zoom = settings.zoom;
-            ushort boxes = settings.amntTargetBoxes;
+            bool zoom = this.settings.zoom;
+            ushort boxes = this.settings.amntTargetBoxes;
             TargetBox targetBox = new TargetBox();
 
             // Initialize the targetBoxes collection
@@ -170,7 +212,7 @@ namespace ColoursInSpace
             int boxWidth = (zoom ? 380 : 540) / boxes;
             int boxRadius = boxWidth / 2;
 
-            // Prepate the boxes first to make things easier
+            // Prepare the boxes first to make things easier
             for (int i = 0; i < boxes; i++)
             {
                 targetBox = new TargetBox();
@@ -207,11 +249,8 @@ namespace ColoursInSpace
             }
             else if (boxes == 7)
             {
-                //TODO
-                //throw new NotImplementedException("7 TargetBoxes is yet to be implemented");
-
-                int widthRemaining = targetBoxes.boxes[mid].x - boxWidth; // Space remaining between the first and the middle box
-                int padding = (widthRemaining - boxWidth * 2) / 3;			  // Empty space between the boxes
+                int widthRemaining = targetBoxes.boxes[mid].x - boxWidth;	// Space remaining between the first and the middle box
+                int padding = (widthRemaining - boxWidth * 2) / 3;			// Empty space between the boxes
 
                 // Left of the middle box
                 targetBoxes.boxes[1].x = boxWidth + padding;
@@ -227,6 +266,12 @@ namespace ColoursInSpace
             }
             else
                 throw new NotImplementedException("More target boxes than 7 is not implemented");
+
+			for (int i = 0; i < boxes; i++ )
+			{
+				TargetBox tempBox = targetBoxes.boxes[i];
+				tempBox.boxColours = new Colours(targetBox);
+			}
         }
 
 

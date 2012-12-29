@@ -1,18 +1,7 @@
 ﻿using System;
-using System.Drawing.Imaging;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using System.Net;
 
 namespace ColoursInSpace
@@ -31,12 +20,13 @@ namespace ColoursInSpace
 
         public InitConfigWindow()
         {
-			// Not very nice yes, makes the splash stay visible a bit longer
+			// To show splash just a wee bit longer
             Thread.Sleep(500);
 
             previewImages = new ResourceDictionary();
             previewImages.Source = new Uri("/Resources/PreviewImagesDictionary.xaml", UriKind.Relative);
             settings = RuntimeSettings.Instance;
+
             InitializeComponent();
         }
 
@@ -54,9 +44,10 @@ namespace ColoursInSpace
         {           
             this.Dispatcher.Invoke((Action)(() =>
             {
-                settings = (RuntimeSettings) sender;
+                settings = sender as RuntimeSettings;
                 this.Targets.Value  = this.settings.amntTargetBoxes;
                 this.Zoom.IsChecked = this.settings.zoom;
+				this.VolumeSlider.Value = (double) this.settings.volume;
             }));
         }
 
@@ -114,11 +105,11 @@ namespace ColoursInSpace
         {
 			Button button = (Button)sender;
             //Very hacky...
-            if (button.Content != "Kill it")
+            if (button.Content != "Terminate Application")
             {
                 //We have lift off
                 kinectThread.Start();
-				button.Content = "Kill it";
+				button.Content = "Terminate Application";
             }
             else
             {
@@ -126,5 +117,15 @@ namespace ColoursInSpace
                 this.Close();
             }
         }
+
+		private void Algorithm_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			ComboBox comboBox = (ComboBox)sender;
+			int index = comboBox.SelectedIndex;
+			if (index == 0)
+				settings.algorithm = ColourAveragingAlgorithms.simple;
+			if (index == 1)
+				settings.algorithm = ColourAveragingAlgorithms.euclidian;
+		}
     }
 }
