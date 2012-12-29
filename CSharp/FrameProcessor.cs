@@ -14,8 +14,20 @@ namespace ColoursInSpace
 {
     public delegate void ProcessFrameData(byte[] colourPixels, short[] depthPixels);
 
+	public static class bitmaps
+	{
+		public static WriteableBitmap box1;
+		public static WriteableBitmap box2;
+		public static WriteableBitmap box3;
+		public static WriteableBitmap box4;
+		public static WriteableBitmap box5;
+	}
+
     class FrameProcessor
     {
+#if DEBUG5
+		TargetBoxPreview previewWindow;
+#endif
         private byte[] pixelBGRAData;
         private short[] grayDepthData;
 
@@ -66,6 +78,24 @@ namespace ColoursInSpace
             backgroundProcessDepth = new BackgroundWorker();
             backgroundProcessColour.DoWork += new DoWorkEventHandler(this.ProcessColourData);
             backgroundProcessDepth.DoWork += new DoWorkEventHandler(this.ProcessDepthData);
+
+
+#if DEBUG5
+			bitmaps.box1 = new WriteableBitmap(108, 108, 96.0, 96.0, PixelFormats.Bgr32, null);
+			bitmaps.box2 = new WriteableBitmap(108, 108, 96.0, 96.0, PixelFormats.Bgr32, null);
+			bitmaps.box3 = new WriteableBitmap(108, 108, 96.0, 96.0, PixelFormats.Bgr32, null);
+			bitmaps.box4 = new WriteableBitmap(108, 108, 96.0, 96.0, PixelFormats.Bgr32, null);
+			bitmaps.box5 = new WriteableBitmap(108, 108, 96.0, 96.0, PixelFormats.Bgr32, null);
+
+			previewWindow = new TargetBoxPreview();
+			previewWindow.Box1.Source = bitmaps.box1;
+			previewWindow.Box2.Source = bitmaps.box2;
+			previewWindow.Box3.Source = bitmaps.box3;
+			previewWindow.Box4.Source = bitmaps.box4;
+			previewWindow.Box5.Source = bitmaps.box5;
+
+			previewWindow.Show();
+#endif
         }
 
         private void ProcessColourData(object sender, DoWorkEventArgs e)
@@ -87,15 +117,33 @@ namespace ColoursInSpace
 				{
 					TargetBox targetBox = targetBoxes.boxes[i];
 
-					targetBox.boxColours.ProcessPixelByteData(pixelData, ref targetBox);
+					Colours.ProcessPixelByteData(pixelData, ref targetBox, ref targetBox.boxColours.pixels);
 
-					double hue = DominantColourAlgorithms.CalculateAverageColourByAveraging(targetBox.boxColours);
+					//double hue = DominantColourAlgorithms.CalculateAverageColourByAveraging(targetBox.boxColours);
 
-					//double hue = DominantColourAlgorithms.CalculateDominantColorByEuclidianDistance(targetBox.boxColours);
+					double hue = DominantColourAlgorithms.CalculateDominantColorByEuclidianDistance(targetBox.boxColours);
 
 					// Get the associated sonochromatic colour from the hue
 					SonochromaticColourType colour = Utility.HueToSonochromatic((int)hue);
 					bag.Add(new ShippingDataSort(colour, i));
+
+#if DEBUG5
+					int dimension = targetBox.radius * 2;
+					Byte[] arr = new Byte[(dimension * dimension * 4)];
+					for (int y = 0; y < dimension; y++)
+					{
+						for (int x = 0; x < dimension; x++)
+						{
+							Colour tempColour = targetBox.boxColours.pixels[x, y];
+							arr[((dimension * 4 * y) + (x * 4))] = tempColour.blue;
+							arr[((dimension * 4 * y) + (x * 4) + 1)] = tempColour.green;
+							arr[((dimension * 4 * y) + (x * 4) + 2)] = tempColour.red;
+							arr[((dimension * 4 * y) + (x * 4) + 3)] = 0;
+						}
+					}
+					this.previewWindow.DoThaThang(arr, i, dimension);
+#endif
+
 				});
 			}
 			RuntimeSettings.ColoursComputationRunningMutex = false;

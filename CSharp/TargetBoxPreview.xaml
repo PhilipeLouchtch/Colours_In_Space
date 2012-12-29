@@ -1,0 +1,12 @@
+﻿<Window x:Class="ColoursInSpace.TargetBoxPreview"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="TargetBoxPreview" Height="249" Width="591">
+    <Grid>
+        <Image x:Name="Box3" HorizontalAlignment="Left" Height="108" Margin="236,59,0,0" Grid.Row="1" VerticalAlignment="Top" Width="108"/>
+        <Image x:Name="Box4" HorizontalAlignment="Left" Height="108" Margin="349,59,0,0" Grid.Row="1" VerticalAlignment="Top" Width="108"/>
+        <Image x:Name="Box5" HorizontalAlignment="Left" Height="108" Margin="462,59,0,0" Grid.Row="1" VerticalAlignment="Top" Width="108"/>
+        <Image x:Name="Box2" HorizontalAlignment="Left" Height="108" Margin="123,59,0,0" Grid.Row="1" VerticalAlignment="Top" Width="108"/>
+        <Image x:Name="Box1" HorizontalAlignment="Left" Height="108" Margin="10,59,0,0" Grid.Row="1" VerticalAlignment="Top" Width="108"/>
+    </Grid>
+</Window>
