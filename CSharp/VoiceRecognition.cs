@@ -3,12 +3,7 @@ using Microsoft.Speech.AudioFormat;
 using Microsoft.Speech.Recognition;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
-using System.Text;
-using System.Windows;
-using System.Windows.Documents;
-using System.Windows.Media;
 
 namespace ColoursInSpace
 {

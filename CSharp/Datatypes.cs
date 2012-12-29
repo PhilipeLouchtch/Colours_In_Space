@@ -8,9 +8,9 @@ namespace ColoursInSpace
     public enum SonochromaticColourType
     {
         Red = 0,
-        Orange,
-        Yellow,
-        Chartreuse,
+        Orange = 1,
+        Yellow = 2,
+        Chartreuse = 3,
         Green,
         Spring,
         Cyan,
@@ -19,8 +19,9 @@ namespace ColoursInSpace
         Violet,
         Magenta,
         Rose,
-		WHITE = -1,
-		BLACK = -2
+		WHITE = 1,
+		GRAYS = 2,
+		BLACK = 3
     };
 
 	public enum ColourAveragingAlgorithms

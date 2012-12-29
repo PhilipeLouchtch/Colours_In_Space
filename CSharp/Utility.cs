@@ -109,13 +109,23 @@ namespace ColoursInSpace
 				colour = SonochromaticColourType.Orange;
 			return colour;
 		}
+
+		public static double GetColourVolume(int colourType)
+		{
+			if (colourType == (int)SonochromaticColourType.BLACK || 
+				colourType == (int)SonochromaticColourType.WHITE ||
+				colourType == (int)SonochromaticColourType.GRAYS)
+				return 0.0;
+			else
+				return 1.0;
+		}
 	}
 
     
     static class DominantColourAlgorithms
     {
         // Heavily modified from http://chironexsoftware.com/blog/?p=60
-        unsafe public static double CalculateDominantColorByEuclidianDistance(Colours colours)
+		unsafe public static SonochromaticColourType CalculateDominantColorByEuclidianDistance(Colours colours)
         {
             List<Tuple<Colour, double>> colourDist = new List<Tuple<Colour, double>>();
 
@@ -162,12 +172,17 @@ namespace ColoursInSpace
                             out saturation,
                             out light);
 
-            // Convert hue from normalized to HSL 360 degree hue
-            hue = hue * 360;
-            return hue;
+			if (light <= 0.15)
+				return SonochromaticColourType.BLACK;
+			else if (light >= 0.85)
+				return SonochromaticColourType.WHITE;
+			else if (saturation < 0.2)
+				return SonochromaticColourType.GRAYS;
+			else
+				return Utility.HueToSonochromatic((int) hue * 360);
         }
 
-        unsafe public static double CalculateAverageColourByAveraging(Colours colours)
+		unsafe public static SonochromaticColourType CalculateAverageColourByAveraging(Colours colours)
         {
 			int dimension = colours.dimension;
 			ulong pixelCount = (ulong) (dimension * dimension);
@@ -199,12 +214,15 @@ namespace ColoursInSpace
 							out saturation,
 							out light);
 
-            // Convert hue from normalized to HSL 360 degree hue
-            hue = hue * 360;
-            return hue;
+			if (light <= 0.04)
+				return SonochromaticColourType.BLACK;
+			else if (light >= 0.60)
+				return SonochromaticColourType.WHITE;
+			else if (saturation < 0.1)
+				return SonochromaticColourType.GRAYS;
+			else
+				return Utility.HueToSonochromatic((int)(hue * 360));
         }
 
     }
-
-
 }

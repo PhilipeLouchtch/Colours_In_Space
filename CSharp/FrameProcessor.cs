@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading;
@@ -119,17 +121,16 @@ namespace ColoursInSpace
 				Parallel.For(0, targetBoxes.boxes.Count, options, (i) =>
 				//for (int i = 0; i < targetBoxes.boxes.Count; i++)
 				{
-					double hue = 0;
+					SonochromaticColourType colour = SonochromaticColourType.BLACK;
 					TargetBox targetBox = targetBoxes.boxes[i];
 
 					Colours.ProcessPixelByteData(pixelData, ref targetBox, ref targetBox.boxColours.pixels);
 
 					if (settings.algorithm == ColourAveragingAlgorithms.simple)
-						hue = DominantColourAlgorithms.CalculateAverageColourByAveraging(targetBox.boxColours);
+						colour = DominantColourAlgorithms.CalculateAverageColourByAveraging(targetBox.boxColours);
 					else if (settings.algorithm == ColourAveragingAlgorithms.euclidian)
-						hue = DominantColourAlgorithms.CalculateDominantColorByEuclidianDistance(targetBox.boxColours);
+						colour = DominantColourAlgorithms.CalculateDominantColorByEuclidianDistance(targetBox.boxColours);
 
-					SonochromaticColourType colour = Utility.HueToSonochromatic((int)hue);
 					bag.Add(new ShippingDataSort(colour, i));
 
 #if DEBUG5

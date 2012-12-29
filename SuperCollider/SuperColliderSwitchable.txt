@@ -1,12 +1,17 @@
 /* 	Received message format: 
 
-	msg(x, .*)  
+	msg(x, A, B)  
 
 	x   ->	Global volume of generated sound. Normalized float, 100% is 1.0
 
-	rest->	enumerated colour corresponding to the ~frequencies array index
+	A   ->	Set of enumerated colours corresponding to the ~frequencies array index
 			the amount of colour arguments is equal to the number in the chat header
 			(/boxes3: 3, /boxes5: 5, /boxes7: 7)
+
+	B   ->  Set of volume values for the colours in A, the order corresponds to the
+			order of elements of set A, so a first element of B is the volume of the
+			first element of A.
+			Is used as a sound toggle, so the volume received is either 1 or 0
  */
  
 (
@@ -21,8 +26,8 @@
 	o = OSCresponder(nil, '/boxes5', 
 									  { 
 										  |t, r, msg| 
-										  ("time:" + t).postln;
-										  msg.postln;
+										  //("time:" + t).postln;
+										  //msg.postln;
 										  ~targetsReceived = 5;
 										  ~msg = msg;
 									  }).add;
@@ -98,10 +103,10 @@
 					~synths3.collect(
 					{ 
 				
-						arg item, i;
+						arg item, i;						
 						~convert = ~frequencies.at(~msg.at(i+2));
-						~formant = 2.1**~msg.at(i+2) + 200;
-						~volume  = 0.2 * ~msg[1];
+						~formant = 2.1**~msg[i+2] + 200;
+						~volume  = 0.2 * ~msg[1] * ~msg[i+5];
 						item.set(\freq, ~convert, \pos, ~positions3[i],\vol, ~volume, \formant, ~formant);
 					});
 				});
@@ -126,8 +131,9 @@
 					{ 
 						arg item, i;
 						~convert = ~frequencies.at(~msg.at(i+2));
-						~formant = 2.1**~msg.at(i+2) + 200;
-						~volume  = 0.2 * ~msg[1];
+						~formant = 2.1**~msg[i+2] + 200;
+						~volume  = 0.2 * ~msg[1] * ~msg[i+7];
+						~volume.postln;
 						item.set(\freq, ~convert, \pos, ~positions5[i],\vol, ~volume, \formant, ~formant);
 					});
 				});
@@ -152,8 +158,8 @@
 					{ 
 						arg item, i;
 						~convert = ~frequencies.at(~msg.at(i+2));
-						~formant = 2.1**~msg.at(i+2) + 200;
-						~volume  = 0.2 * ~msg[1];
+						~formant = 2.1**~msg[i+2] + 200;
+						~volume  = 0.2 * ~msg[1] * ~msg[i+9];
 						item.set(\freq, ~convert, \pos, ~positions7[i],\vol, ~volume, \formant, ~formant);
 					});
 				});
@@ -165,7 +171,3 @@
 
 // OSC send test:
 m = NetAddr("127.0.0.1", 57120);
-m.sendMsg('/boxes3', 0.8, 1, 3, 5);
-m.sendMsg('/boxes5', 0.8, 1, 3, 5, 7, 9, [1, 2, 3]);
-m.sendMsg('/boxes7', 0.8, 1, 3, 5, 7, 5, 3, 1);
-m.sendMsg('/boxes7', 0.1, 1, 3, 5, 7, 5, 3, 1);
