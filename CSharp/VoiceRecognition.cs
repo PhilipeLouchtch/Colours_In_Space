@@ -139,7 +139,8 @@ namespace ColoursInSpace
         /// </returns>
         private static RecognizerInfo GetKinectRecognizer()
         {
-            foreach (RecognizerInfo recognizer in SpeechRecognitionEngine.InstalledRecognizers())
+			IReadOnlyCollection<RecognizerInfo> recognizers = SpeechRecognitionEngine.InstalledRecognizers();
+            foreach (RecognizerInfo recognizer in recognizers)
             {
                 string value;
                 recognizer.AdditionalInfo.TryGetValue("Kinect", out value);

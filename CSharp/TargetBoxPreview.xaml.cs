@@ -14,6 +14,7 @@ using System.Windows.Shapes;
 
 namespace ColoursInSpace
 {
+#if DEBUG5
 	/// <summary>
 	/// Interaction logic for TargetBoxPreview.xaml
 	/// </summary>
@@ -28,6 +29,7 @@ namespace ColoursInSpace
 		{
 			this.Dispatcher.Invoke((Action)(() =>
 			{
+				i = 4 - i;
 				if (i == 0)
 					bitmaps.box1.WritePixels(
 						new Int32Rect(0, 0, dimension, dimension),
@@ -61,4 +63,5 @@ namespace ColoursInSpace
 			}));
 		}
 	}
+#endif
 }

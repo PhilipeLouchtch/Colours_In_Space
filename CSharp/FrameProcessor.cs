@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using Microsoft.Kinect;
 using System.Threading;
 using System.ComponentModel;
 using System.Collections.Concurrent;
@@ -14,6 +9,7 @@ namespace ColoursInSpace
 {
     public delegate void ProcessFrameData(byte[] colourPixels, short[] depthPixels);
 
+#if DEBUG5
 	public static class bitmaps
 	{
 		public static WriteableBitmap box1;
@@ -22,6 +18,7 @@ namespace ColoursInSpace
 		public static WriteableBitmap box4;
 		public static WriteableBitmap box5;
 	}
+#endif
 
     class FrameProcessor
     {
@@ -98,6 +95,13 @@ namespace ColoursInSpace
 #endif
         }
 
+		~FrameProcessor()
+		{
+#if DEBUG5
+			previewWindow = null;
+#endif
+		}
+
         private void ProcessColourData(object sender, DoWorkEventArgs e)
 		{
 			byte[] pixelData = (byte[])e.Argument;
@@ -115,26 +119,28 @@ namespace ColoursInSpace
 				Parallel.For(0, targetBoxes.boxes.Count, options, (i) =>
 				//for (int i = 0; i < targetBoxes.boxes.Count; i++)
 				{
+					double hue = 0;
 					TargetBox targetBox = targetBoxes.boxes[i];
 
 					Colours.ProcessPixelByteData(pixelData, ref targetBox, ref targetBox.boxColours.pixels);
 
-					//double hue = DominantColourAlgorithms.CalculateAverageColourByAveraging(targetBox.boxColours);
+					if (settings.algorithm == ColourAveragingAlgorithms.simple)
+						hue = DominantColourAlgorithms.CalculateAverageColourByAveraging(targetBox.boxColours);
+					else if (settings.algorithm == ColourAveragingAlgorithms.euclidian)
+						hue = DominantColourAlgorithms.CalculateDominantColorByEuclidianDistance(targetBox.boxColours);
 
-					double hue = DominantColourAlgorithms.CalculateDominantColorByEuclidianDistance(targetBox.boxColours);
-
-					// Get the associated sonochromatic colour from the hue
 					SonochromaticColourType colour = Utility.HueToSonochromatic((int)hue);
 					bag.Add(new ShippingDataSort(colour, i));
 
 #if DEBUG5
 					int dimension = targetBox.radius * 2;
+					Colour tempColour;
 					Byte[] arr = new Byte[(dimension * dimension * 4)];
 					for (int y = 0; y < dimension; y++)
 					{
-						for (int x = 0; x < dimension; x++)
+						for (int x = dimension - 1; x >= 0; x--)
 						{
-							Colour tempColour = targetBox.boxColours.pixels[x, y];
+							tempColour = targetBox.boxColours.pixels[dimension - 1 - x, y];
 							arr[((dimension * 4 * y) + (x * 4))] = tempColour.blue;
 							arr[((dimension * 4 * y) + (x * 4) + 1)] = tempColour.green;
 							arr[((dimension * 4 * y) + (x * 4) + 2)] = tempColour.red;

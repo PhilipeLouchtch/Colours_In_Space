@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace ColoursInSpace
 {
@@ -24,6 +22,12 @@ namespace ColoursInSpace
 		WHITE = -1,
 		BLACK = -2
     };
+
+	public enum ColourAveragingAlgorithms
+	{
+		simple,
+		euclidian
+	};
 
 	class Colour
 	{
@@ -202,6 +206,8 @@ namespace ColoursInSpace
 			} 
 		}
 
+		public ColourAveragingAlgorithms algorithm { get; set; }
+
 
         //Placeholder for the filter type
         public object filter;
@@ -221,6 +227,9 @@ namespace ColoursInSpace
 					this._volume = 100;
 				else
 					this._volume = value;
+
+				if (settingsChanged != null)
+					settingsChanged(this);	
 			}
 		}
 
