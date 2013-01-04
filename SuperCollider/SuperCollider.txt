@@ -1,4 +1,4 @@
-////////////////HARBISSONS SONOCHROMATIC SCALE IN 2D//////////////////////// 
+////////////////DIFFERENT SYNTHS AND SCALING METHODS//////////////////////// 
 
 (
 //OSC receive: 
@@ -29,10 +29,20 @@ SynthDef.new('sonochromatic', {
 	 pan = Pan2.ar(sin, pos);
 	 Out.ar(0, pan);
  }).add;
+ 
+ SynthDef.new('granular', {
+	 |freq, pos, vol, dens|
+	 var rate, dur, clk, grains;
+	 rate = dens;
+	 dur = 6/rate;
+	 clk = Dust.kr(rate);
+	 grains = GrainSin.ar(2, clk, dur, freq, pos, 0,  mul:0.1);
+	 Out.ar(0, grains);
+ }).add; 
 )
 
 (
-~synths = Array.fill(5, {Synth.new(\formant)});
+~synths = Array.fill(5, {Synth.new(\granular)});
 
 //in the code below the synth should receive messages from OSC and send them to the synth
 Routine{	
@@ -41,7 +51,8 @@ Routine{
 			~synths.collect({ arg item, i;
 			~convert = ~frequencies.at(~msg.at(i+1));
 			~formant = 2.1**~msg.at(i+1) + 200;
-			item.set(\freq, ~convert, \pos, ~positions[i],\vol, 0.2, \formant, ~formant);
+			~dens = ~msg.at(i+1) * 2.5;
+			item.set(\freq, ~convert, \pos, ~positions[i],\vol, 0.2, \dens, ~dens);
 			})
 		});
 		0.03.wait;
@@ -51,4 +62,4 @@ Routine{
 
 //OSC send test:
 m = NetAddr("127.0.0.1", 57120);
-m.sendMsg('/boxes5', 11, 9, 6, 9, 4, 10);
+m.sendMsg('/boxes5', 11, 2, 3, 3, 10);
