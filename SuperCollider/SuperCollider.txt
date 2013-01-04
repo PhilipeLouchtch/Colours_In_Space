@@ -1,12 +1,17 @@
 ////////////////HARBISSONS SONOCHROMATIC SCALE IN 2D//////////////////////// 
+
 (
 //OSC receive: 
 n = NetAddr("127.0.0.1", 57120);
 o = OSCresponder(nil, '/boxes5', { |t, r, msg| ("time:" + t).postln; msg.postln;~msg = msg; ~numSynths = msg[1] }).add;
 
 ~msg = -1;
-~frequencies = Array.with(174.61, 185.0, 196.0, 207.65, 220.0, 233.08, 246.94, 261.63, 277.18, 293.66, 311.13, 329.63); //array to store the frequencies of the chromatic scale from F3 to E4. 
- ~positions = Array.with(-1, -0.5, 0, 0.5, 1);
+//sonochromatic:
+//~frequencies = Array.with(174.61, 185.0, 196.0, 207.65, 220.0, 233.08, 246.94, 261.63, 277.18, 293.66, 311.13, 329.63); //array to store the frequencies of the chromatic scale from F3 to E4. 
+//Skrjabin:
+~frequencies = Array.with(349.23, 466.16, 311.13, 415.30, 293.23, 369.99, 493.88, 329.63, 440, 293.66, 392, 261.63);
+~positions = Array.with(-1, -0.5, 0, 0.5, 1);
+//~positions = Array.with(-1, 0, 1);
  
 SynthDef.new('sonochromatic', {
 	 |freq, pos, vol| //parameters to be controlled by Kinect: colour, postition and volume
@@ -24,11 +29,11 @@ SynthDef.new('sonochromatic', {
 	 pan = Pan2.ar(sin, pos);
 	 Out.ar(0, pan);
  }).add;
-
-~synths = Array.fill(5, {Synth.new(\formant)});
 )
 
 (
+~synths = Array.fill(5, {Synth.new(\formant)});
+
 //in the code below the synth should receive messages from OSC and send them to the synth
 Routine{	
 	inf.do({
@@ -46,4 +51,4 @@ Routine{
 
 //OSC send test:
 m = NetAddr("127.0.0.1", 57120);
-m.sendMsg('/boxes5', 5, 7, 6, 2, 0, 2);
+m.sendMsg('/boxes5', 11, 9, 6, 9, 4, 10);
