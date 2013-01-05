@@ -51,6 +51,7 @@
 
 	// Frequencies of the chromatic scale from F3 to E4. 
 	~frequencies = Array.with(174.61, 185.0, 196.0, 207.65, 220.0, 233.08, 246.94, 261.63, 277.18, 293.66, 311.13, 329.63);
+	~frequenciesNew = Array.with(349.23, 466.16, 311.13, 415.30, 293.23, 369.99, 493.88, 329.63, 440, 293.66, 392, 261.63);
 	
 	// Positioning information per amount of Targets
 	~positions3 = Array.with(-1, 0, 1);
@@ -82,7 +83,7 @@
 		rate = dens;
 		dur = 6/rate;
 		clk = Dust.kr(rate);
-		grains = GrainSin.ar(2, clk, dur, freq, pos, 0,  mul:0.1);
+		grains = GrainSin.ar(2, clk, dur, freq, pos, 0,  mul:vol);
 		Out.ar(0, grains);
 	}).add; 
 )
@@ -152,7 +153,7 @@
 						~synths3granular.collect(
 						{ 
 							arg item, i;
-							~convert = ~frequencies[~msg[i+3]];
+							~convert = ~frequenciesNew[~msg[i+3]];
 							~volume  = 0.2 * ~msg[2] * ~msg[i+6];
 							~dens = ~msg[i+3] * 2.5;
 							item.set(\freq, ~convert, \pos, ~positions3[i],\vol, ~volume, \dens, ~dens);
@@ -209,11 +210,10 @@
 					},
 					//else
 					{
-						"Running Granular!".post;
 						~synths5granular.collect(
 						{ 
 							arg item, i;
-							~convert = ~frequencies[~msg[i+3]];
+							~convert = ~frequenciesNew[~msg[i+3]];
 							~volume  = 0.2 * ~msg[2] * ~msg[i+8];
 							~dens = ~msg[i+3] * 2.5;
 							item.set(\freq, ~convert, \pos, ~positions5[i],\vol, ~volume, \dens, ~dens);
@@ -223,7 +223,6 @@
 							arg item, i;
 							item.set(\vol, 0.0);
 						});
-						" ".postln;
 					});
 				});
 				if (~targetsReceived == 7,
@@ -273,7 +272,7 @@
 						~synths7granular.collect(
 						{ 
 							arg item, i;
-							~convert = ~frequencies[~msg[i+3]];
+							~convert = ~frequenciesNew[~msg[i+3]];
 							~volume  = 0.2 * ~msg[2] * ~msg[i+10];
 							~dens = ~msg[i+3] * 2.5;
 							item.set(\freq, ~convert, \pos, ~positions7[i],\vol, ~volume, \dens, ~dens);
