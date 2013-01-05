@@ -19,6 +19,10 @@ namespace ColoursInSpace
         Violet,
         Magenta,
         Rose,
+
+		// Assigning already used numbers to avoid adding extra
+		// conditions in SC code since these are actually array indexes
+		// in the SC code, these three will result in silence anyway
 		WHITE = 1,
 		GRAYS = 2,
 		BLACK = 3
@@ -26,8 +30,14 @@ namespace ColoursInSpace
 
 	public enum ColourAveragingAlgorithms
 	{
-		simple,
-		euclidian
+		Simple,
+		Euclidian
+	};
+
+	public enum SCSynthType
+	{
+		Formant,
+		Granular
 	};
 
 	class Colour
@@ -209,9 +219,25 @@ namespace ColoursInSpace
 
 		public ColourAveragingAlgorithms algorithm { get; set; }
 
-
-        //Placeholder for the filter type
-        public object filter;
+		private SCSynthType _synthType;
+		public SCSynthType synthType
+		{
+			get
+			{
+				return _synthType;
+			}
+			set
+			{
+				if ((int)value != 1)
+				{
+					_synthType = SCSynthType.Formant;
+				}
+				else
+				{
+					_synthType = SCSynthType.Granular;
+				}
+			}
+		}
 
         /// <summary>
         /// Volume, value range from 0 to 100
@@ -274,10 +300,11 @@ namespace ColoursInSpace
         /// </summary>
         RuntimeSettings()
         {
-            distance = true;
+            distance = false;
             colour = true;
 			zoom = false;
-            //filter; nothing yet....
+			algorithm = ColourAveragingAlgorithms.Simple;
+			synthType = SCSynthType.Formant;
             volume = 100;
             amntTargetBoxes = 5;
         }

@@ -106,6 +106,9 @@
     <Compile Include="InitializationConfig.xaml.cs">
       <DependentUpon>InitializationConfig.xaml</DependentUpon>
     </Compile>
+    <Compile Include="VoiceCommandsHelp.xaml.cs">
+      <DependentUpon>VoiceCommandsHelp.xaml</DependentUpon>
+    </Compile>
     <Compile Include="VoiceRecognition.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
@@ -123,6 +126,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="TargetBoxPreview.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="VoiceCommandsHelp.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

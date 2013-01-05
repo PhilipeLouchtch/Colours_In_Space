@@ -53,10 +53,12 @@ namespace ColoursInSpace
 
 			// Will return the instance of the settings, not new settings
 			RuntimeSettings settings = RuntimeSettings.Instance;
+			int synthType = (int)settings.synthType;
 			double volume = settings.volume / 100.0;
 
 			if (capacity == 3)
-				boxesMSG = new OscElement("/boxes3", volume,
+				boxesMSG = new OscElement("/boxes3", synthType,
+													 volume,
 													 shippingData[0].sonochromaticColour,
 													 shippingData[1].sonochromaticColour,
 													 shippingData[2].sonochromaticColour,
@@ -64,7 +66,8 @@ namespace ColoursInSpace
 													 Utility.GetColourVolume(shippingData[1].sonochromaticColour),
 													 Utility.GetColourVolume(shippingData[2].sonochromaticColour));
 			else if (capacity == 5)
-				boxesMSG = new OscElement("/boxes5", volume,
+				boxesMSG = new OscElement("/boxes5", synthType,
+													 volume,
 													 shippingData[0].sonochromaticColour,
 													 shippingData[1].sonochromaticColour,
 													 shippingData[2].sonochromaticColour,
@@ -76,7 +79,8 @@ namespace ColoursInSpace
 													 Utility.GetColourVolume(shippingData[3].sonochromaticColour),
 													 Utility.GetColourVolume(shippingData[4].sonochromaticColour));
 			else
-				boxesMSG = new OscElement("/boxes7", volume,
+				boxesMSG = new OscElement("/boxes7", synthType,
+													 volume,
 													 shippingData[0].sonochromaticColour,
 													 shippingData[1].sonochromaticColour,
 													 shippingData[2].sonochromaticColour,

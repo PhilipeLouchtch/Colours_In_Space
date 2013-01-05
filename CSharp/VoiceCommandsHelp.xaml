@@ -1,0 +1,9 @@
+﻿<Window x:Class="ColoursInSpace.VoiceCommandsHelp"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="List of available voice commands" Height="281" Width="299" SizeToContent="WidthAndHeight" ResizeMode="NoResize" WindowStyle="ToolWindow">
+    <Grid>
+        <TextBlock Margin="10" TextWrapping="Wrap"><Run Text="List of available voice commands:"/><LineBreak/><Run/><LineBreak/><Run Text="  Changing &quot;Volume&quot;:"/><LineBreak/><Run Text="      Say &quot;Kinect Volume Up&quot; to increase volume"/><LineBreak/><Run Text="      Say &quot;Kinect Volume Down&quot; to decrease volume"/><LineBreak/><Run/><LineBreak/><Run Text="  Changing &quot;Sound&quot; (Synth type):"/><LineBreak/><Run Text="      Say &quot;Kinect Sound Next&quot; to pick the next one"/><LineBreak/><Run/><LineBreak/><Run Text="  Changing the amount of &quot;Target Boxes&quot;:"/><LineBreak/><Run Text="      Say &quot;Kinect Targets Up&quot; to increase the amount"/><LineBreak/><Run Text="      Say &quot;Kinect Targets Down&quot; to decrease the amount"/><LineBreak/><Run/><LineBreak/><Run Text="  Changing the &quot;Zoom&quot; setting:"/><LineBreak/><Run Text="      Say &quot;Kinect Zoom On&quot; to turn on zoom"/><LineBreak/><Run Text="      Say &quot;Kinect Zoom Off&quot; to turn off zoom"/></TextBlock>
+
+    </Grid>
+</Window>

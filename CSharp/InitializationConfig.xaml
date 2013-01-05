@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:Properties="clr-namespace:ColoursInSpace.Properties" x:Name="ConfigWindow" x:Class="ColoursInSpace.InitConfigWindow"
-        Title="Colours In Space Initial Configuration Window" Height="376" Width="469.236" ResizeMode="NoResize" WindowStyle="ToolWindow" Loaded="WindowLoaded" Closing="WindowClosing">
+        Title="Colours In Space Initial Configuration Window" Height="376" Width="469.236" ResizeMode="NoResize" Loaded="WindowLoaded" Closing="WindowClosing">
     <Grid Height="355" VerticalAlignment="Center" Margin="0,0,0,3">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="265*"/>
@@ -11,11 +11,11 @@
         <GroupBox x:Name="ImagePreviewGroup" Header=" Detection settings" Margin="10,10,3,10"  >
             <Grid Margin="0,-14,-2,-12"  Height="339" VerticalAlignment="Top">
                 <Image x:Name="PreviewImagebox" Margin="10,22,10,181" />
-                <GroupBox x:Name="ModeParameters" Header=" Mode Parameters" Margin="0,226,2,12" >
+                <GroupBox x:Name="ModeParameters" Header=" Mode Parameters (unavailable)" Margin="0,226,2,12" >
                     <Grid Margin="0,0,-2,-12" IsHitTestVisible="True" >
-                        <RadioButton x:Name="SonarMode" Content="Distance (Sonar mode)" Margin="8,60,10,10" />
-                        <RadioButton x:Name="ColourMode" Content="Colour (Colour-only mode)" Margin="8,34,10,38" />
-                        <RadioButton x:Name="MixedMode" Content="Mixed Mode (Colour and Distance)" Margin="8,10,10,64" />
+                        <RadioButton x:Name="SonarMode" Content="Distance (Sonar mode)" Margin="8,60,10,10" IsEnabled="False" />
+                        <RadioButton x:Name="ColourMode" Content="Colour (Colour-only mode)" Margin="8,34,10,38" IsEnabled="False" />
+                        <RadioButton x:Name="MixedMode" Content="Mixed Mode (Colour and Distance)" Margin="8,10,10,64" IsEnabled="False" />
                     </Grid>
                 </GroupBox>
                 <Label x:Name="Label3" Content="3" HorizontalAlignment="Left" Margin="10,203,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Height="26" Width="25" >
@@ -55,14 +55,18 @@
         </GroupBox>
         <Slider x:Name="VolumeSlider"  Margin="11,31,10,306" Value="50" SmallChange="1" TickFrequency="5" LargeChange="25" Maximum="100" AutoToolTipPlacement="TopLeft" Grid.Column="1" />
         <Label Content="Volume" Margin="6,10,130,0" VerticalAlignment="Top" Grid.Column="1" Height="25" />
-        <ComboBox Margin="11,79,10,254" Grid.Column="1" />
-        <Label Content="Filter" HorizontalAlignment="Left" Margin="6,54,0,0" VerticalAlignment="Top" Width="64" Grid.Column="1" Height="25" />
-        <Button x:Name="startToggle" Content="Start!" Margin="11,296,10,10"  Click="startToggle_Click" Grid.Column="1"/>
-        <ComboBox x:Name="Algorithm" Margin="11,135,10,199" SelectionChanged="Algorithm_SelectionChanged" Grid.Column="1" SelectedIndex="0" ToolTip="The current algorithm used to determine the average colour per target box.">
+        <ComboBox x:Name="SynthType" Margin="11,79,10,254" Grid.Column="1" SelectionChanged="SynthType_SelectionChanged" >
+            <ComboBoxItem Content="Formant" ToolTip="Synths based on Neil Herbisson's Sonochromatic scale. Colours that are close to eachother sound dissonant."/>
+            <ComboBoxItem Content="Granular" ToolTip="Our own creation. Should be more harmonic than &quot;Formant&quot;."/>
+        </ComboBox>
+        <Label Content="Sound" HorizontalAlignment="Left" Margin="6,54,0,0" VerticalAlignment="Top" Width="64" Grid.Column="1" Height="25" />
+        <Button x:Name="startToggle" Content="Start!" Margin="10,272,11,34"  Click="startToggle_Click" Grid.Column="1"/>
+        <ComboBox x:Name="Algorithm" Margin="11,135,10,199" SelectionChanged="Algorithm_SelectionChanged" Grid.Column="1" ToolTip="The current algorithm used to determine the average colour per target box.">
             <ComboBoxItem Content="Simple Averaging" ToolTip="Simplest algorithm (default)"/>
             <ComboBoxItem Content="Euclidian" ToolTip="Slower, experimental"/>
         </ComboBox>
         <Label Content="Average colour algorithm" Margin="6,110,55,0" VerticalAlignment="Top" Grid.Column="1" Height="25"/>
+        <Button x:Name="voiceHelp" Content="List of voice commands" Grid.Column="1" Margin="10,326,11,10" Click="voiceHelp_Click"/>
 
     </Grid>
 </Window>

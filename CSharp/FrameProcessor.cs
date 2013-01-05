@@ -126,9 +126,9 @@ namespace ColoursInSpace
 
 					Colours.ProcessPixelByteData(pixelData, ref targetBox, ref targetBox.boxColours.pixels);
 
-					if (settings.algorithm == ColourAveragingAlgorithms.simple)
+					if (settings.algorithm == ColourAveragingAlgorithms.Simple)
 						colour = DominantColourAlgorithms.CalculateAverageColourByAveraging(targetBox.boxColours);
-					else if (settings.algorithm == ColourAveragingAlgorithms.euclidian)
+					else if (settings.algorithm == ColourAveragingAlgorithms.Euclidian)
 						colour = DominantColourAlgorithms.CalculateDominantColorByEuclidianDistance(targetBox.boxColours);
 
 					bag.Add(new ShippingDataSort(colour, i));

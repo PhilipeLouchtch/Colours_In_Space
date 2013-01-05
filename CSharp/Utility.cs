@@ -161,7 +161,7 @@ namespace ColoursInSpace
                      
             var clrs = (from entry in colourDist
                         orderby entry.Item2 ascending
-                        select new { colour = entry.Item1, Dist = 1.0 / Math.Max(1, entry.Item2) }).ToList();
+						select new { colour = entry.Item1, Dist = 1.0 / Math.Max(1, entry.Item2) }).ToList().Take(Math.Max(1, (int)(colourDist.Count * 0.1)));
 
 			sumDist = clrs.Sum(x => x.Dist);
 
@@ -172,14 +172,7 @@ namespace ColoursInSpace
                             out saturation,
                             out light);
 
-			if (light <= 0.15)
-				return SonochromaticColourType.BLACK;
-			else if (light >= 0.85)
-				return SonochromaticColourType.WHITE;
-			else if (saturation < 0.2)
-				return SonochromaticColourType.GRAYS;
-			else
-				return Utility.HueToSonochromatic((int) hue * 360);
+			return GetColourType(hue, saturation, light);
         }
 
 		unsafe public static SonochromaticColourType CalculateAverageColourByAveraging(Colours colours)
@@ -214,15 +207,20 @@ namespace ColoursInSpace
 							out saturation,
 							out light);
 
-			if (light <= 0.04)
+			return GetColourType(hue, saturation, light);
+        }
+
+		unsafe private static SonochromaticColourType GetColourType(double hue, double saturation, double light)
+		{
+			if (light <= 0.02)
 				return SonochromaticColourType.BLACK;
 			else if (light >= 0.60)
 				return SonochromaticColourType.WHITE;
-			else if (saturation < 0.1)
+			else if (saturation < 0.01)
 				return SonochromaticColourType.GRAYS;
 			else
 				return Utility.HueToSonochromatic((int)(hue * 360));
-        }
+		}
 
     }
 }

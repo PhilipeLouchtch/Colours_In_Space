@@ -20,7 +20,7 @@ namespace ColoursInSpace
 
         public InitConfigWindow()
         {
-			// To show splash just a wee bit longer
+			// Show the splash just a wee bit longer
             Thread.Sleep(500);
 
             previewImages = new ResourceDictionary();
@@ -88,6 +88,9 @@ namespace ColoursInSpace
 
 			this.VolumeSlider.ValueChanged += VolumeSlider_ValueChanged;
             this.settings.settingsChanged  += this.ProcessSettingsChanges;
+
+			this.Algorithm.SelectedIndex = (int)settings.algorithm;
+			this.SynthType.SelectedIndex = (int)settings.synthType;
         }
 
 		void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -121,11 +124,21 @@ namespace ColoursInSpace
 		private void Algorithm_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 			ComboBox comboBox = (ComboBox)sender;
-			int index = comboBox.SelectedIndex;
-			if (index == 0)
-				settings.algorithm = ColourAveragingAlgorithms.simple;
-			if (index == 1)
-				settings.algorithm = ColourAveragingAlgorithms.euclidian;
+			ColourAveragingAlgorithms algorithm = (ColourAveragingAlgorithms)comboBox.SelectedIndex;
+			settings.algorithm = algorithm;
+		}
+
+		private void SynthType_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			ComboBox comboBox = (ComboBox)sender;
+			SCSynthType synthType = (SCSynthType)comboBox.SelectedIndex;
+			settings.synthType = synthType;
+		}
+
+		private void voiceHelp_Click(object sender, RoutedEventArgs e)
+		{
+			VoiceCommandsHelp voiceHelpWindow = new VoiceCommandsHelp();
+			voiceHelpWindow.Show();
 		}
     }
 }

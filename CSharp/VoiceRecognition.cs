@@ -66,11 +66,11 @@ namespace ColoursInSpace
             {
                 var result = e.Result.Text;
 
-                if (result.Contains("Filter"))
+                if (result.Contains("Sound"))
                 {
                     if (result.Contains("Next"))
                     {
-                        throw new NotImplementedException("Filters not yet implemented");
+						settings.synthType++;
                     }
                 }
                 else if (result.Contains("Volume"))
@@ -151,7 +151,7 @@ namespace ColoursInSpace
         #region Keywords and Mappings
         private enum Headers
         {
-            Filter,
+            Sound,
             Volume,
             Targets,
             Mode,
@@ -172,7 +172,7 @@ namespace ColoursInSpace
 
         private Dictionary<string, Headers> CategoryMatchings = new Dictionary<string,Headers>
         {
-            { "Filter",  Headers.Filter },
+            { "Sound",   Headers.Sound },
             { "Volume",  Headers.Volume },
             { "Targets", Headers.Targets },
             { "Mode",    Headers.Mode },
