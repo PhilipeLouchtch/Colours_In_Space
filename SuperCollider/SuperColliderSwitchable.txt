@@ -1,8 +1,14 @@
 /* 	Received message format: 
 
-	msg(x, A, B)  
+	msg [header, x, y, A, B]  
+	
+	header -> The respondernode listener
 
-	x   ->	Global volume of generated sound. Normalized float, 100% is 1.0
+	x	->  The type of synth.
+			0: Formant
+			1: Granular
+
+	y   ->	Global volume of generated sound. Normalized float, 100% is 1.0
 
 	A   ->	Set of enumerated colours corresponding to the ~frequencies array index
 			the amount of colour arguments is equal to the number in the chat header
@@ -26,15 +32,15 @@
 	o = OSCresponder(nil, '/boxes5', 
 									  { 
 										  |t, r, msg| 
-										  //("time:" + t).postln;
-										  //msg.postln;
+										  ("time:" + t).post;
+										  msg.postln;
 										  ~targetsReceived = 5;
 										  ~msg = msg;
 									  }).add;
 	o = OSCresponder(nil, '/boxes7', 
 									  { 
 										  |t, r, msg| 
-										  ("time:" + t).postln; 
+										  ("time:" + t).post; 
 										  msg.postln; 
 										  ~targetsReceived = 7; 
 										  ~msg = msg;
@@ -68,14 +74,29 @@
 		 pan = Pan2.ar(sin, pos);
 		 Out.ar(0, pan);
 	}).add;
+ 
+	// Granular Synth
+	SynthDef.new('granular', {
+		|freq, pos, vol, dens|
+		var rate, dur, clk, grains;
+		rate = dens;
+		dur = 6/rate;
+		clk = Dust.kr(rate);
+		grains = GrainSin.ar(2, clk, dur, freq, pos, 0,  mul:0.1);
+		Out.ar(0, grains);
+	}).add; 
 )
 
 
 /* Prepare the Arrays with synths */
 (
-	~synths3 = Array.fill(3, {Synth.new(\formant)});
-	~synths5 = Array.fill(5, {Synth.new(\formant)});
-	~synths7 = Array.fill(7, {Synth.new(\formant)});
+	~synths3formant = Array.fill(3, {Synth.new(\formant)});
+	~synths5formant = Array.fill(5, {Synth.new(\formant)});
+	~synths7formant = Array.fill(7, {Synth.new(\formant)});
+
+	~synths3granular = Array.fill(3, {Synth.new(\granular)});
+	~synths5granular = Array.fill(5, {Synth.new(\granular)});
+	~synths7granular = Array.fill(7, {Synth.new(\granular)});
 )
 
 (
@@ -88,26 +109,59 @@
 				{
 					if (~currentTargets != 3,
 					{
-						~synths5.collect(
+						~synths5formant.collect(
 						{ 
-								arg item, i;
-								item.set(\vol, 0.0);
+							arg item, i;
+							item.set(\vol, 0.0);
 						});
-						~synths7.collect(
+						~synths7formant.collect(
 						{ 
-								arg item, i;
-								item.set(\vol, 0.0);
+							arg item, i;
+							item.set(\vol, 0.0);
+						});
+						~synths5granular.collect(
+						{ 
+							arg item, i;
+							item.set(\vol, 0.0);
+						});
+						~synths7granular.collect(
+						{ 
+							arg item, i;
+							item.set(\vol, 0.0);
 						});
 						~currentTargets = 3;
 					});
-					~synths3.collect(
-					{ 
-				
-						arg item, i;						
-						~convert = ~frequencies.at(~msg.at(i+2));
-						~formant = 2.1**~msg[i+2] + 200;
-						~volume  = 0.2 * ~msg[1] * ~msg[i+5];
-						item.set(\freq, ~convert, \pos, ~positions3[i],\vol, ~volume, \formant, ~formant);
+					if (~msg[1] == 0,
+					{
+						~synths3formant.collect(
+						{ 
+							arg item, i;
+							~convert = ~frequencies[~msg[i+3]];
+							~volume  = 0.2 * ~msg[2] * ~msg[i+6];
+							~formant = 2.1**~msg[i+3] + 200;
+							item.set(\freq, ~convert, \pos, ~positions3[i],\vol, ~volume, \formant, ~formant);
+						});						
+						~synths3granular.collect(
+						{ 
+							arg item, i;
+							item.set(\vol, 0.0);
+						});
+					},
+					//else
+					{
+						~synths3granular.collect(
+						{ 
+							arg item, i;
+							~convert = ~frequencies[~msg[i+3]];
+							~volume  = 0.2 * ~msg[2] * ~msg[i+6];
+							~dens = ~msg[i+3] * 2.5;
+							item.set(\freq, ~convert, \pos, ~positions3[i],\vol, ~volume, \dens, ~dens);
+						});
+						~synths3formant.collect(
+						{ 
+							arg item, i;
+							item.set(\vol, 0.0);
+						});
 					});
 				});
 				if (~targetsReceived == 5,
@@ -116,25 +170,60 @@
 					{
 						~synths3.collect(
 						{ 
-				
-								arg item, i;
-								item.set(\vol, 0.0);
+							arg item, i;
+							item.set(\vol, 0.0);
 						});
 						~synths7.collect(
 						{ 
-								arg item, i;
-								item.set(\vol, 0.0);
+							arg item, i;
+							item.set(\vol, 0.0);
 						});
-					~currentTargets = 5;
+						~synths3granular.collect(
+						{ 
+							arg item, i;
+							item.set(\vol, 0.0);
+						});
+						~synths7granular.collect(
+						{ 
+							arg item, i;
+							item.set(\vol, 0.0);
+						});
+						~currentTargets = 5;
 					});
-					~synths5.collect(
-					{ 
-						arg item, i;
-						~convert = ~frequencies.at(~msg.at(i+2));
-						~formant = 2.1**~msg[i+2] + 200;
-						~volume  = 0.2 * ~msg[1] * ~msg[i+7];
-						~volume.postln;
-						item.set(\freq, ~convert, \pos, ~positions5[i],\vol, ~volume, \formant, ~formant);
+
+					if (~msg[1] == 0,
+					{
+						~synths5formant.collect(
+						{ 
+							arg item, i;
+							~convert = ~frequencies[~msg[i+3]];
+							~volume  = 0.2 * ~msg[2] * ~msg[i+8];
+							~formant = 2.1**~msg[i+3] + 200;
+							item.set(\freq, ~convert, \pos, ~positions5[i],\vol, ~volume, \formant, ~formant);
+						});
+						~synths5granular.collect(
+						{ 
+							arg item, i;
+							item.set(\vol, 0.0);
+						});
+					},
+					//else
+					{
+						"Running Granular!".post;
+						~synths5granular.collect(
+						{ 
+							arg item, i;
+							~convert = ~frequencies[~msg[i+3]];
+							~volume  = 0.2 * ~msg[2] * ~msg[i+8];
+							~dens = ~msg[i+3] * 2.5;
+							item.set(\freq, ~convert, \pos, ~positions5[i],\vol, ~volume, \dens, ~dens);
+						});
+						~synths5formant.collect(
+						{ 
+							arg item, i;
+							item.set(\vol, 0.0);
+						});
+						" ".postln;
 					});
 				});
 				if (~targetsReceived == 7,
@@ -143,24 +232,57 @@
 					{
 						~synths3.collect(
 						{ 
-				
-								arg item, i;
-								item.set(\vol, 0.0);
+							arg item, i;
+							item.set(\vol, 0.0);
 						});
 						~synths5.collect(
 						{ 
-								arg item, i;
-								item.set(\vol, 0.0);
+							arg item, i;
+							item.set(\vol, 0.0);
 						});
-					~currentTargets = 7;
+						~synths3granular.collect(
+						{ 
+							arg item, i;
+							item.set(\vol, 0.0);
+						});
+						~synths5granular.collect(
+						{ 
+							arg item, i;
+							item.set(\vol, 0.0);
+						});
+						~currentTargets = 7;
 					});
-					~synths7.collect(
-					{ 
-						arg item, i;
-						~convert = ~frequencies.at(~msg.at(i+2));
-						~formant = 2.1**~msg[i+2] + 200;
-						~volume  = 0.2 * ~msg[1] * ~msg[i+9];
-						item.set(\freq, ~convert, \pos, ~positions7[i],\vol, ~volume, \formant, ~formant);
+					if (~msg[1] == 0,
+					{
+						~synths7formant.collect(
+						{ 
+							arg item, i;
+							~convert = ~frequencies[~msg[i+3]];
+							~volume  = 0.2 * ~msg[2] * ~msg[i+10];
+							~formant = 2.1**~msg[i+3] + 200;
+							item.set(\freq, ~convert, \pos, ~positions7[i],\vol, ~volume, \formant, ~formant);
+						});
+						~synths7granular.collect(
+						{ 
+							arg item, i;
+							item.set(\vol, 0.0);
+						});
+					},
+					//else
+					{
+						~synths7granular.collect(
+						{ 
+							arg item, i;
+							~convert = ~frequencies[~msg[i+3]];
+							~volume  = 0.2 * ~msg[2] * ~msg[i+10];
+							~dens = ~msg[i+3] * 2.5;
+							item.set(\freq, ~convert, \pos, ~positions7[i],\vol, ~volume, \dens, ~dens);
+						});
+						~synths7formant.collect(
+						{ 
+							arg item, i;
+							item.set(\vol, 0.0);
+						});
 					});
 				});
 			});
