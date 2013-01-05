@@ -47,7 +47,8 @@ namespace ColoursInSpace
                 settings = sender as RuntimeSettings;
                 this.Targets.Value  = this.settings.amntTargetBoxes;
                 this.Zoom.IsChecked = this.settings.zoom;
-				this.VolumeSlider.Value = (double) this.settings.volume;
+				this.VolumeSlider.Value = (double)this.settings.volume;
+				this.SynthType.SelectedIndex = (int)settings.synthType;
             }));
         }
 
@@ -72,8 +73,7 @@ namespace ColoursInSpace
 			RuntimeSettings settings = RuntimeSettings.Instance;
             coloursProcessor = new FrameProcessor(this.osc.SendMsg, this.osc.SendBoxes, settings);
             kinectLogic = new Kinect(this.coloursProcessor.ProcessPixelData);
-            kinectThread = new Thread(new ThreadStart(this.kinectLogic.ConnectToSensor));
-
+			kinectThread = new Thread(new ThreadStart(this.kinectLogic.ConnectToSensor));
 
             /* Set interface controls to values stored in RuntimeSettings */
 

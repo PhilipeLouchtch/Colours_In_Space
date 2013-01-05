@@ -102,7 +102,7 @@
     <Compile Include="TargetBoxPreview.xaml.cs">
       <DependentUpon>TargetBoxPreview.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Utility.cs" />
+    <Compile Include="ColourTools.cs" />
     <Compile Include="InitializationConfig.xaml.cs">
       <DependentUpon>InitializationConfig.xaml</DependentUpon>
     </Compile>

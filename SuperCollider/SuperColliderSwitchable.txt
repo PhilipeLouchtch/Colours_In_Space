@@ -49,9 +49,9 @@
 	~msg = -1;
 	~currentTargets = 0;
 
-	// Frequencies of the chromatic scale from F3 to E4. 
-	~frequencies = Array.with(174.61, 185.0, 196.0, 207.65, 220.0, 233.08, 246.94, 261.63, 277.18, 293.66, 311.13, 329.63);
-	~frequenciesNew = Array.with(349.23, 466.16, 311.13, 415.30, 293.23, 369.99, 493.88, 329.63, 440, 293.66, 392, 261.63);
+	// Frequencies of the chromatic scale from F3 to E4. Last three entries are never actually played, they are used when muted due to a bad colour
+	~frequencies = Array.with(174.61, 185.0, 196.0, 207.65, 220.0, 233.08, 246.94, 261.63, 277.18, 293.66, 311.13, 329.63, 100, 100, 100);
+	~frequenciesNew = Array.with(349.23, 466.16, 311.13, 415.30, 293.23, 369.99, 493.88, 329.63, 440, 293.66, 392, 261.63, 100, 100, 100);
 	
 	// Positioning information per amount of Targets
 	~positions3 = Array.with(-1, 0, 1);
@@ -169,12 +169,12 @@
 				{
 					if (~currentTargets != 5,
 					{
-						~synths3.collect(
+						~synths3formant.collect(
 						{ 
 							arg item, i;
 							item.set(\vol, 0.0);
 						});
-						~synths7.collect(
+						~synths7formant.collect(
 						{ 
 							arg item, i;
 							item.set(\vol, 0.0);
@@ -229,12 +229,12 @@
 				{
 					if (~currentTargets != 7,
 					{
-						~synths3.collect(
+						~synths3formant.collect(
 						{ 
 							arg item, i;
 							item.set(\vol, 0.0);
 						});
-						~synths5.collect(
+						~synths5formant.collect(
 						{ 
 							arg item, i;
 							item.set(\vol, 0.0);

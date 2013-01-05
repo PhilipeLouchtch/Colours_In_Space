@@ -89,12 +89,19 @@ namespace ColoursInSpace
 				}
 
 				this.voiceRecognition = new VoiceRecognition();
-				this.voiceRecognition.IntializeRecognition(ref this.sensor);
+				try
+				{
+					this.voiceRecognition.IntializeRecognition(ref this.sensor);
+				}
+				catch (ApplicationException ex)
+				{
+					MessageBox.Show(ex.Message);
+				}
 			}
 			else
 			{
 				// No Kinect found, can't recover
-				throw new IOException("No connected Kinect found. Is it connected and powered?");
+				MessageBox.Show("No connected Kinect found. Is it connected and powered?");
 			}
 		}
 

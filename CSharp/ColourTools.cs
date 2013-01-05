@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace ColoursInSpace
 {
-	class Utility
+	class ColourTools
 	{
 		/// <summary>
 		/// Converts a RBG colour to the HSL colour space
@@ -110,11 +110,11 @@ namespace ColoursInSpace
 			return colour;
 		}
 
-		public static double GetColourVolume(int colourType)
+		public static double GetColourVolume(SonochromaticColourType colourType)
 		{
-			if (colourType == (int)SonochromaticColourType.BLACK || 
-				colourType == (int)SonochromaticColourType.WHITE ||
-				colourType == (int)SonochromaticColourType.GRAYS)
+			if (colourType == SonochromaticColourType.BLACK || 
+				colourType == SonochromaticColourType.WHITE ||
+				colourType == SonochromaticColourType.GRAYS)
 				return 0.0;
 			else
 				return 1.0;
@@ -136,36 +136,44 @@ namespace ColoursInSpace
 			double light = 0;
 			double sumDist = 0;
 
+			Colour c1, c2;
+			double dist;
+
 			for (int x = 0; x < dimension; x += 6)
             {
                 for (int y = 0; y < dimension; y += 6)
                 {
-                    Colour c1 = colours.pixels[x, y];
-                    double dist = 0;
+                     c1 = colours.pixels[x, y];
+                     dist = 0;
 
-					for (int x2 = 0; x2 < dimension; x2 += 6)
-                    {
-						for (int y2 = 0; y2 < dimension; y2 += 6)
-                        {
-                            Colour c2 = colours.pixels[x2, y2];
+					// Ignore any Near-Black/White pixels
+					 if ((c1.red > 25 && c1.green > 25 && c1.blue > 25) ||
+					   (c1.red < 240 && c1.green < 240 && c1.blue < 240))
+					{
+						for (int x2 = 0; x2 < dimension; x2 += 6)
+						{
+							for (int y2 = 0; y2 < dimension; y2 += 6)
+							{
+								c2 = colours.pixels[x2, y2];
 
-                            dist += Math.Sqrt(Math.Pow(c2.red   - c1.red, 2) +
-                                              Math.Pow(c2.green - c1.green, 2) +
-                                              Math.Pow(c2.blue  - c1.blue, 2));
-                        }
-                    }
+								dist += Math.Sqrt(Math.Pow(c2.red - c1.red, 2) +
+												  Math.Pow(c2.green - c1.green, 2) +
+												  Math.Pow(c2.blue - c1.blue, 2));
+							}
+						}
 
-                    colourDist.Add(new Tuple<Colour, double>(c1, dist));
+						colourDist.Add(new Tuple<Colour, double>(c1, dist));
+					}
                 }
             }
                      
             var clrs = (from entry in colourDist
                         orderby entry.Item2 ascending
-						select new { colour = entry.Item1, Dist = 1.0 / Math.Max(1, entry.Item2) }).ToList().Take(Math.Max(1, (int)(colourDist.Count * 0.1)));
+						select new { colour = entry.Item1, Dist = 1.0 / Math.Max(1, entry.Item2) }).ToList().Take(Math.Max(1, (int)(colourDist.Count * 0.2)));
 
 			sumDist = clrs.Sum(x => x.Dist);
 
-            Utility.RGB2HSL((int)(clrs.Sum(x => x.colour.red   * x.Dist) / sumDist),
+            ColourTools.RGB2HSL((int)(clrs.Sum(x => x.colour.red   * x.Dist) / sumDist),
                             (int)(clrs.Sum(x => x.colour.green * x.Dist) / sumDist),
                             (int)(clrs.Sum(x => x.colour.blue  * x.Dist) / sumDist),
                             out hue,
@@ -178,7 +186,7 @@ namespace ColoursInSpace
 		unsafe public static SonochromaticColourType CalculateAverageColourByAveraging(Colours colours)
         {
 			int dimension = colours.dimension;
-			ulong pixelCount = (ulong) (dimension * dimension);
+			ulong pixelCount = 0;
 
 			ulong red = 0;
 			ulong green = 0;
@@ -188,19 +196,29 @@ namespace ColoursInSpace
             double saturation = 0;
             double light = 0;
 
+			Colour colour;
+
             // Calculate the average (literally) colour in the target box
 			// Steps of two for a speedup and hopefuly less junk
             for (int x = 0; x < dimension; x += 2)
             {
                 for (int y = 0; y < dimension; y += 2)
                 {
-                    red	  += colours.pixels[x, y].red;
-                    green += colours.pixels[x, y].green;
-                    blue  += colours.pixels[x, y].blue;
+					colour = colours.pixels[x, y];
+
+					// Ignore any Near-Black/White pixels
+					if ((colour.red > 25 && colour.green > 25 && colour.blue > 25) ||
+					    (colour.red < 240 && colour.green < 240 && colour.blue < 240))
+					{
+						red += colour.red;
+						green += colour.green;
+						blue += colour.blue;
+						pixelCount++;
+					}
                 }
             }
 
-			Utility.RGB2HSL((int)(red   / pixelCount),
+			ColourTools.RGB2HSL((int)(red   / pixelCount),
 							(int)(green / pixelCount),
 							(int)(blue  / pixelCount),
 							out hue,
@@ -214,12 +232,12 @@ namespace ColoursInSpace
 		{
 			if (light <= 0.02)
 				return SonochromaticColourType.BLACK;
-			else if (light >= 0.60)
-				return SonochromaticColourType.WHITE;
-			else if (saturation < 0.01)
+			else if (saturation < 0.05)
 				return SonochromaticColourType.GRAYS;
+			else if (light >= 0.95)
+				return SonochromaticColourType.WHITE;
 			else
-				return Utility.HueToSonochromatic((int)(hue * 360));
+				return ColourTools.HueToSonochromatic((int)(hue * 360));
 		}
 
     }

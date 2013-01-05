@@ -19,13 +19,9 @@ namespace ColoursInSpace
         Violet,
         Magenta,
         Rose,
-
-		// Assigning already used numbers to avoid adding extra
-		// conditions in SC code since these are actually array indexes
-		// in the SC code, these three will result in silence anyway
-		WHITE = 1,
-		GRAYS = 2,
-		BLACK = 3
+		WHITE,
+		GRAYS,
+		BLACK
     };
 
 	public enum ColourAveragingAlgorithms
@@ -236,6 +232,8 @@ namespace ColoursInSpace
 				{
 					_synthType = SCSynthType.Granular;
 				}
+				if (settingsChanged != null)
+					settingsChanged(this);
 			}
 		}
 
@@ -363,13 +361,13 @@ namespace ColoursInSpace
 	/// </summary>
 	public class ShippingData
 	{
-		public int sonochromaticColour { get; private set; }
+		public SonochromaticColourType sonochromaticColour { get; private set; }
 
 		public int distance { get; private set; }
 
 		public ShippingData(SonochromaticColourType colourType, int depth = 0)
 		{
-			sonochromaticColour = (int)colourType;
+			sonochromaticColour = colourType;
 		}
 	}
 
